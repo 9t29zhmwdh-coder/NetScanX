@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetScanX Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --border: #2a2d3e;
+    --text: #e2e8f0; --muted: #8892a4; --accent: #4ade80;
+    --warn: #facc15; --err: #f87171; --blue: #60a5fa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: .05em; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: .4rem; }
+  .dot-ok { background: var(--accent); }
+  .dot-scan { background: var(--warn); animation: pulse 1s infinite; }
+  .dot-off { background: var(--err); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  main { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; gap: 1.5rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .card h2 { font-size: .9rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 1rem; }
+  .badge { display: inline-block; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; font-weight: 600; }
+  .badge-ok { background: #064e3b; color: var(--accent); }
+  .badge-warn { background: #713f12; color: var(--warn); }
+  .badge-err { background: #450a0a; color: var(--err); }
+  .badge-skip { background: #1e2030; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th { text-align: left; color: var(--muted); font-weight: 500; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; padding: .5rem .75rem; border-bottom: 1px solid var(--border); }
+  td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:hover td { background: rgba(255,255,255,.03); }
+  .ip { color: var(--blue); font-family: monospace; }
+  .mac { color: #c084fc; font-family: monospace; font-size: .82rem; }
+  .mono { font-family: monospace; font-size: .82rem; color: var(--muted); }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .stat { text-align: center; }
+  .stat .val { font-size: 2rem; font-weight: 700; color: var(--accent); }
+  .stat .lbl { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+  .diag-row { display: flex; align-items: flex-start; gap: .75rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+  .diag-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+  .diag-name { font-weight: 600; font-size: .9rem; }
+  .diag-msg { font-size: .82rem; color: var(--muted); margin-top: .15rem; }
+  .scan-btn { background: var(--accent); color: #000; border: none; padding: .5rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .9rem; }
+  .scan-btn:hover { opacity: .85; }
+  .scan-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .tag { display: inline-block; background: #1e2030; color: var(--blue); border-radius: 4px; padding: .1rem .45rem; font-size: .75rem; margin-right: .3rem; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body x-data="app()" x-init="init()">
+
+<header>
+  <h1>⬡ NetScanX</h1>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <span>
+      <span class="status-dot" :class="wsState === 'connected' ? 'dot-ok' : scanning ? 'dot-scan' : 'dot-off'"></span>
+      <span x-text="wsState === 'connected' ? 'Live' : 'Offline'" style="font-size:.85rem;color:var(--muted)"></span>
+    </span>
+    <button class="scan-btn" @click="triggerScan()" :disabled="scanning" x-text="scanning ? 'Scanning…' : 'Rescan'"></button>
+  </div>
+</header>
+
+<main>
+  <!-- Summary row -->
+  <div class="stat-grid">
+    <div class="stat"><div class="val" x-text="hosts.length"></div><div class="lbl">Hosts</div></div>
+    <div class="stat"><div class="val" x-text="services.length"></div><div class="lbl">Services</div></div>
+    <div class="stat">
+      <div class="val" :class="diagnostics.summary_error > 0 ? 'text-red' : 'text-green'" x-text="diagnostics.summary_error > 0 ? diagnostics.summary_error + ' ✗' : '✓'" style="font-size:1.8rem;"></div>
+      <div class="lbl">Diagnostics</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Hosts table -->
+    <div class="card">
+      <h2>Discovered Hosts (<span x-text="hosts.length"></span>)</h2>
+      <template x-if="hosts.length === 0">
+        <p style="color:var(--muted);font-size:.85rem;">No hosts yet — click Rescan</p>
+      </template>
+      <template x-if="hosts.length > 0">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>IP</th><th>MAC</th><th>Vendor</th><th>Via</th></tr></thead>
+            <tbody>
+              <template x-for="h in hosts" :key="h.ip">
+                <tr>
+                  <td class="ip" x-text="h.ip"></td>
+                  <td class="mac" x-text="h.mac || '—'"></td>
+                  <td style="font-size:.82rem;" x-text="h.vendor || '—'"></td>
+                  <td>
+                    <template x-for="v in (h.discovered_via || [])" :key="v">
+                      <span class="tag" x-text="v"></span>
+                    </template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </template>
+    </div>
+
+    <!-- Diagnostics -->
+    <div class="card">
+      <h2>Network Diagnostics</h2>
+      <template x-if="!diagnostics.checks || diagnostics.checks.length === 0">
+        <p style="color:var(--muted);font-size:.85rem;">Diagnostics pending…</p>
+      </template>
+      <template x-for="check in (diagnostics.checks || [])" :key="check.name">
+        <div class="diag-row">
+          <div class="diag-icon" x-text="check.status === 'ok' ? '✓' : check.status === 'warning' ? '!' : check.status === 'error' ? '✗' : '–'"></div>
+          <div>
+            <div class="diag-name" x-text="check.name"></div>
+            <div class="diag-msg" x-text="check.message"></div>
+          </div>
+          <div style="margin-left:auto;">
+            <span class="badge" :class="`badge-${check.status === 'skipped' ? 'skip' : check.status}`" x-text="check.status.toUpperCase()"></span>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="card">
+    <h2>Network Services (<span x-text="services.length"></span>)</h2>
+    <template x-if="services.length === 0">
+      <p style="color:var(--muted);font-size:.85rem;">Run <code>netscanx services</code> to populate</p>
+    </template>
+    <template x-if="services.length > 0">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Name</th><th>Type</th><th>Host / IP</th><th>Port</th><th>Source</th></tr></thead>
+          <tbody>
+            <template x-for="s in services" :key="s.name + s.ip">
+              <tr>
+                <td x-text="s.name"></td>
+                <td class="mono" x-text="s.type"></td>
+                <td class="ip" x-text="s.ip || s.host || '—'"></td>
+                <td x-text="s.port || '—'"></td>
+                <td><span class="tag" x-text="s.source"></span></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+  </div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
