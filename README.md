@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="RayStudio.png" alt="RayStudio Logo" width="120"/>
+
+  <h1>NetScanX</h1>
+</div>
+
 [Deutsch](README.de.md)
 
 # NetScanX
@@ -235,5 +241,10 @@ netscanx discover 127.0.0.1 --no-arp --ping --ports 22,80,443,8080
 MIT
 
 ---
+
+<div align="right">
+  <sub>by</sub><br/>
+  <img src="RayStudio.png" alt="RayStudio" width="70"/>
+</div>
 
 **Author:** [Rafael Yilmaz](https://github.com/9t29zhmwdh-coder) · **Status:** Framework Preview · **Last Updated:** June 2026
