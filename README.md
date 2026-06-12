@@ -6,8 +6,6 @@
 
 [Deutsch](README.de.md)
 
-# NetScanX
-
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
