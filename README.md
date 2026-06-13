@@ -234,10 +234,6 @@ netscanx discover 127.0.0.1 --no-arp --ping --ports 22,80,443,8080
 
 ---
 
-## License
-
-MIT
-
 ---
 
 **Author:** [Rafael Yilmaz](https://github.com/9t29zhmwdh-coder) · **Status:** Framework Preview · **Last Updated:** June 2026
