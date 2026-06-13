@@ -216,11 +216,6 @@ python tools/test_network.py
 netscanx discover 127.0.0.1 --no-arp --ping --ports 22,80,443,8080
 ```
 
----
-
-## Lizenz
-
-MIT
 
 ---
 
