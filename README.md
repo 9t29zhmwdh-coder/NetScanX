@@ -4,7 +4,7 @@
   <h1>NetScanX</h1>
 </div>
 
-[Deutsch](README.de.md)
+[🇩🇪 Deutsche Version](README.de.md)
 
 [![CI](https://github.com/9t29zhmwdh-coder/NetScanX/actions/workflows/ci.yml/badge.svg)](https://github.com/9t29zhmwdh-coder/NetScanX/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11+-orange)
