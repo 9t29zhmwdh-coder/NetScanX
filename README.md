@@ -6,6 +6,7 @@
 
 [Deutsch](README.de.md)
 
+[![CI](https://github.com/9t29zhmwdh-coder/NetScanX/actions/workflows/ci.yml/badge.svg)](https://github.com/9t29zhmwdh-coder/NetScanX/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11+-orange)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
