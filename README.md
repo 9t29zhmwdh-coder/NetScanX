@@ -6,10 +6,10 @@
 
 [Deutsch](README.de.md)
 
-![Python](https://img.shields.io/badge/Python-3.11+-blue)
+![Python](https://img.shields.io/badge/Python-3.11+-orange)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![CLI](https://img.shields.io/badge/CLI-Click%20%2B%20Rich-cyan)
+![CLI](https://img.shields.io/badge/CLI-Click%20%2B%20Rich-blue)
 
 A cross-platform Network Discovery and Diagnostic Toolkit — discover hosts, enumerate services, measure throughput, and auto-diagnose network issues from a single CLI.
 
