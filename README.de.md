@@ -13,9 +13,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CLI](https://img.shields.io/badge/CLI-Click%20%2B%20Rich-cyan)
 
-Ein plattformübergreifendes Netzwerk-Discovery- und Diagnose-Toolkit — Hosts entdecken, Dienste aufzählen, Durchsatz messen und Netzwerkprobleme automatisch diagnostizieren, alles über eine einzige CLI.
+Ein plattformübergreifendes Netzwerk-Discovery- und Diagnose-Toolkit; Hosts entdecken, Dienste aufzählen, Durchsatz messen und Netzwerkprobleme automatisch diagnostizieren, alles über eine einzige CLI.
 
-Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig — Installation via `pip`.
+Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation via `pip`.
 
 ---
 
@@ -27,7 +27,7 @@ Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig — Installat
 | **Layer 3** | ICMP-Ping-Sweep, Subnetz-Scan, MTU-Erkennung, IP-Konflikt-Erkennung |
 | **Layer 4** | TCP-Connect-Scan, TCP-SYN-Scan¹, UDP-Scan¹, Banner-Grabbing |
 | **Services** | mDNS, SSDP/UPnP, NetBIOS, SNMP-Discovery |
-| **Performance** | P2P-Speedtest — TCP-Durchsatz, UDP-Paketverlust, Latenz, Jitter |
+| **Performance** | P2P-Speedtest: TCP-Durchsatz, UDP-Paketverlust, Latenz, Jitter |
 | **Diagnostics** | DNS-Fehler, doppelte DHCP-Server, Routing-Probleme, Latenz-Spitzen, Subnetz-Fehlkonfiguration |
 | **Dashboard** | Optionales Web-Dashboard (FastAPI + Alpine.js + Chart.js) |
 | **Output** | Rich-Tabellen (Standard), JSON, YAML für Automatisierung |
@@ -164,7 +164,7 @@ netscanx dashboard --port 9090
 | TCP-SYN-Scan | root / `cap_net_raw` | sudo | Administrator |
 | UDP-Scan | root | sudo | Administrator |
 
-### Linux — Berechtigung ohne sudo
+### Linux; Berechtigung ohne sudo
 
 ```bash
 sudo setcap cap_net_raw+ep $(which python3)
