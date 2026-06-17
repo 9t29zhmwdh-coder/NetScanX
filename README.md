@@ -12,9 +12,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CLI](https://img.shields.io/badge/CLI-Click%20%2B%20Rich-blue)
 
-A cross-platform Network Discovery and Diagnostic Toolkit — discover hosts, enumerate services, measure throughput, and auto-diagnose network issues from a single CLI.
+A cross-platform Network Discovery and Diagnostic Toolkit; discover hosts, enumerate services, measure throughput, and auto-diagnose network issues from a single CLI.
 
-Runs on **macOS, Linux, and Windows**. No build step required — install with `pip`.
+Runs on **macOS, Linux, and Windows**. No build step required, install with `pip`.
 
 ---
 
@@ -26,7 +26,7 @@ Runs on **macOS, Linux, and Windows**. No build step required — install with `
 | **Layer 3** | ICMP ping sweep, subnet scan, MTU detection, IP conflict detection |
 | **Layer 4** | TCP connect scan, TCP SYN scan¹, UDP scan¹, banner grabbing |
 | **Services** | mDNS, SSDP/UPnP, NetBIOS, SNMP discovery |
-| **Performance** | P2P speedtest — TCP throughput, UDP packet loss, latency, jitter |
+| **Performance** | P2P speedtest: TCP throughput, UDP packet loss, latency, jitter |
 | **Diagnostics** | DNS errors, duplicate DHCP, routing problems, latency spikes, subnet misconfiguration |
 | **Dashboard** | Optional web dashboard (FastAPI + Alpine.js + Chart.js) |
 | **Output** | Rich tables (default), JSON, YAML for automation |
@@ -180,7 +180,7 @@ netscanx dashboard --port 9090
 | TCP SYN scan | root / `cap_net_raw` | sudo | Administrator |
 | UDP scan | root | sudo | Administrator |
 
-### Linux — grant capability without sudo
+### Linux; grant capability without sudo
 
 ```bash
 sudo setcap cap_net_raw+ep $(which python3)
@@ -215,7 +215,7 @@ netscanx discover --format json > scan.json
 netscanx diagnose --format yaml
 ```
 
-JSON/YAML output is fully serialisable and automation-friendly — pipe into `jq`, Ansible, scripts, etc.
+JSON/YAML output is fully serialisable and automation-friendly. Pipe into `jq`, Ansible, scripts, etc.
 
 ---
 
