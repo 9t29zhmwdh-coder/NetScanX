@@ -9,4 +9,4 @@ results are transmitted to external servers or third parties.
 - **CLI output only:** Results are printed to stdout or saved locally by the user.
 
 If you use the speedtest feature, a connection to the speedtest provider's server
-is made — that provider's privacy policy applies.
+is made : that provider's privacy policy applies.
