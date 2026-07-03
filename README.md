@@ -233,4 +233,4 @@ netscanx discover 127.0.0.1 --no-arp --ping --ports 22,80,443,8080
 
 ---
 
-**Author:** [Rafael Yilmaz](https://github.com/9t29zhmwdh-coder) · **Status:** Active · ![version](https://img.shields.io/github/v/release/9t29zhmwdh-coder/NetScanX?label=\&color=6b7280\&style=flat-square) · **License:** MIT
+**Author:** [Rafael Yilmaz](https://github.com/9t29zhmwdh-coder) · **Status:** Active · ![version](https://img.shields.io/github/v/release/9t29zhmwdh-coder/NetScanX?color=6b7280&style=flat-square) · **License:** MIT
