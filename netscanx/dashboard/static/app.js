@@ -7,6 +7,11 @@ function app() {
     wsState: 'disconnected',
     _ws: null,
     _retryTimer: null,
+    speedtestTarget: '',
+    speedtestCount: 15,
+    speedtestRunning: false,
+    speedtestError: '',
+    speedtest: {},
 
     init() {
       this.connectWS();
@@ -57,24 +62,30 @@ function app() {
         case 'diagnostics':
           this.diagnostics = msg.data || {};
           break;
+        case 'speedtest':
+          this.speedtest = msg.data || {};
+          break;
         case 'cache':
           if (msg.data.hosts) this.hosts = msg.data.hosts;
           if (msg.data.services) this.services = msg.data.services;
           if (msg.data.diagnostics) this.diagnostics = msg.data.diagnostics;
+          if (msg.data.speedtest) this.speedtest = msg.data.speedtest;
           break;
       }
     },
 
     async fetchInitial() {
       try {
-        const [h, s, d] = await Promise.all([
+        const [h, s, d, sp] = await Promise.all([
           fetch('/api/hosts').then(r => r.json()),
           fetch('/api/services').then(r => r.json()),
           fetch('/api/diagnostics').then(r => r.json()),
+          fetch('/api/speedtest').then(r => r.json()),
         ]);
         if (h.length) this.hosts = h;
         if (s.length) this.services = s;
         if (d.checks) this.diagnostics = d;
+        if (sp.host) this.speedtest = sp;
       } catch (_) {}
     },
 
@@ -84,6 +95,32 @@ function app() {
         await fetch('/api/scan');
       } catch (_) {
         this.scanning = false;
+      }
+    },
+
+    async runSpeedtest() {
+      this.speedtestError = '';
+      const target = this.speedtestTarget.trim();
+      if (!target) {
+        this.speedtestError = 'Bitte IP oder Hostname eingeben';
+        return;
+      }
+      this.speedtestRunning = true;
+      try {
+        const resp = await fetch('/api/speedtest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ host: target, count: this.speedtestCount }),
+        });
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.detail || `HTTP ${resp.status}`);
+        }
+        this.speedtest = await resp.json();
+      } catch (e) {
+        this.speedtestError = e.message || 'Speedtest fehlgeschlagen';
+      } finally {
+        this.speedtestRunning = false;
       }
     },
   };

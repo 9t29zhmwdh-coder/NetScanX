@@ -8,7 +8,7 @@ from rich.console import Console
 
 from netscanx.output import emit_json, emit_yaml, print_diagnostic
 
-console = Console()
+console = Console(stderr=True)
 
 
 @click.command()

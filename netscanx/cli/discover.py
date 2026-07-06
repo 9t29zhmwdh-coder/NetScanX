@@ -11,13 +11,14 @@ from rich.console import Console
 
 from netscanx.models import DiscoverResult, Host
 from netscanx.output import emit_json, emit_yaml, print_discover
+from netscanx.scanner.hostname import resolve_hostnames_batch
 from netscanx.scanner.layer2 import ARPScanner, get_arp_cache
 from netscanx.scanner.layer3 import ICMPScanner
 from netscanx.scanner.layer4 import TCPScanner, SYNScanner, parse_port_spec
 from netscanx.scanner.privileges import is_root
 from netscanx.scanner.vendor import lookup_vendor
 
-console = Console()
+console = Console(stderr=True)
 
 
 def _auto_detect_network() -> str:
@@ -40,6 +41,8 @@ def _auto_detect_network() -> str:
 @click.option("--banner/--no-banner", default=False, help="Grab service banners")
 @click.option("--vendor/--no-vendor", default=False,
               help="Lookup MAC vendors (uses online API, rate-limited)")
+@click.option("--hostname/--no-hostname", default=True,
+              help="Resolve hostnames via reverse DNS")
 @click.option("--timeout", "-t", default=2.0, type=float, metavar="SEC",
               help="Probe timeout in seconds [default: 2.0]")
 @click.option("--concurrency", "-c", default=200, type=int, metavar="N",
@@ -56,6 +59,7 @@ def discover(
     syn: bool,
     banner: bool,
     vendor: bool,
+    hostname: bool,
     timeout: float,
     concurrency: int,
     fmt: str,
@@ -84,6 +88,7 @@ def discover(
         do_syn=syn,
         do_banner=banner,
         do_vendor=vendor,
+        do_hostname=hostname,
         timeout=timeout,
         concurrency=concurrency,
         fmt=fmt,
@@ -100,12 +105,49 @@ async def _run(
     do_syn: bool,
     do_banner: bool,
     do_vendor: bool,
+    do_hostname: bool,
     timeout: float,
     concurrency: int,
     fmt: str,
     include_cache: bool,
     verbose: bool,
 ) -> None:
+    result = await run_discover_scan(
+        target=target,
+        do_arp=do_arp,
+        do_ping=do_ping,
+        port_spec=port_spec,
+        do_syn=do_syn,
+        do_banner=do_banner,
+        do_vendor=do_vendor,
+        do_hostname=do_hostname,
+        timeout=timeout,
+        concurrency=concurrency,
+        include_cache=include_cache,
+    )
+
+    if fmt == "json":
+        emit_json(result)
+    elif fmt == "yaml":
+        emit_yaml(result)
+    else:
+        print_discover(result, verbose=verbose)
+
+
+async def run_discover_scan(
+    target: str,
+    do_arp: bool = True,
+    do_ping: bool = True,
+    port_spec: str | None = None,
+    do_syn: bool = False,
+    do_banner: bool = False,
+    do_vendor: bool = False,
+    do_hostname: bool = True,
+    timeout: float = 2.0,
+    concurrency: int = 200,
+    include_cache: bool = False,
+) -> DiscoverResult:
+    """Run a full discover scan and return the result. Used by the CLI and the dashboard."""
     t0 = time.monotonic()
     hosts_by_ip: dict[str, Host] = {}
 
@@ -143,9 +185,12 @@ async def _run(
             except Exception as e:
                 console.print(f"[yellow]ICMP:[/yellow] {e}")
 
-        if include_cache:
-            cache_hosts = await get_arp_cache()
-            for h in cache_hosts:
+        # Always read the OS ARP cache to enrich already-discovered hosts with a MAC
+        # address. Pinging a host makes the OS resolve its MAC, so the cache has it
+        # even without root/scapy. --cache additionally adds cache-only hosts as new entries.
+        cache_hosts = await get_arp_cache()
+        for h in cache_hosts:
+            if include_cache or h.ip in hosts_by_ip:
                 _merge(h)
 
     if port_spec or do_syn:
@@ -174,7 +219,7 @@ async def _run(
                     if "tcp" not in h.discovered_via:
                         h.discovered_via.append("tcp")
 
-    if do_vendor and not is_root():
+    if do_vendor:
         macs = [h.mac for h in hosts_by_ip.values() if h.mac and not h.vendor]
         if macs:
             console.print(f"[dim]Looking up {len(macs)} MAC vendors…[/dim]")
@@ -182,19 +227,18 @@ async def _run(
                 if h.mac and not h.vendor:
                     h.vendor = await lookup_vendor(h.mac)
 
+    if do_hostname and hosts_by_ip:
+        resolved = await resolve_hostnames_batch(list(hosts_by_ip.keys()))
+        for ip, name in resolved.items():
+            if name:
+                hosts_by_ip[ip].hostname = name
+
     elapsed = time.monotonic() - t0
-    result = DiscoverResult(
+    return DiscoverResult(
         target=target,
         hosts=list(hosts_by_ip.values()),
         scan_duration_s=round(elapsed, 2),
     )
-
-    if fmt == "json":
-        emit_json(result)
-    elif fmt == "yaml":
-        emit_yaml(result)
-    else:
-        print_discover(result, verbose=verbose)
 
 
 def _is_single_ip(target: str) -> bool:

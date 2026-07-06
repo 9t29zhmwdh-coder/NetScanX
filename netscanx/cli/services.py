@@ -11,7 +11,7 @@ from rich.console import Console
 from netscanx.models import ServicesResult
 from netscanx.output import emit_json, emit_yaml, print_services
 
-console = Console()
+console = Console(stderr=True)
 
 
 @click.command()
@@ -76,6 +76,36 @@ async def _run(
     ssdp_timeout: float,
     fmt: str,
 ) -> None:
+    result = await run_services_scan(
+        target=target,
+        do_mdns=do_mdns,
+        do_ssdp=do_ssdp,
+        do_netbios=do_netbios,
+        do_snmp=do_snmp,
+        community=community,
+        mdns_timeout=mdns_timeout,
+        ssdp_timeout=ssdp_timeout,
+    )
+
+    if fmt == "json":
+        emit_json(result)
+    elif fmt == "yaml":
+        emit_yaml(result)
+    else:
+        print_services(result)
+
+
+async def run_services_scan(
+    target: str,
+    do_mdns: bool = True,
+    do_ssdp: bool = True,
+    do_netbios: bool = False,
+    do_snmp: bool = False,
+    community: str = "public",
+    mdns_timeout: float = 5.0,
+    ssdp_timeout: float = 4.0,
+) -> ServicesResult:
+    """Run a full services scan and return the result. Used by the CLI and the dashboard."""
     from netscanx.discovery.mdns import MDNSDiscovery
     from netscanx.discovery.ssdp import SSDPScanner
     from netscanx.discovery.netbios import NetBIOSScanner
@@ -114,18 +144,11 @@ async def _run(
                     all_services.extend(snmp_results)
 
     elapsed = time.monotonic() - t0
-    result = ServicesResult(
+    return ServicesResult(
         target=target,
         services=all_services,
         scan_duration_s=round(elapsed, 2),
     )
-
-    if fmt == "json":
-        emit_json(result)
-    elif fmt == "yaml":
-        emit_yaml(result)
-    else:
-        print_services(result)
 
 
 async def _mdns_task(scanner) -> list:

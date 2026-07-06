@@ -10,7 +10,7 @@
 
 A cross-platform Network Discovery and Diagnostic Toolkit; discover hosts, enumerate services, measure throughput, and auto-diagnose network issues from a single CLI.
 
-Runs on **macOS, Linux, and Windows**. No build step required, install with `pip`.
+Runs on **macOS, Linux, and Windows**. No build step required, install with `pip` (see [Quick Start](#quick-start) for the platform-specific install path).
 
 ---
 
@@ -33,15 +33,44 @@ Runs on **macOS, Linux, and Windows**. No build step required, install with `pip
 
 ## Quick Start
 
-```bash
-# Install
-pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
+### macOS / Linux
 
-# Or local dev
+Most modern installs (Homebrew Python, Debian/Ubuntu system Python, …) are **externally managed** (PEP 668) and reject a bare `pip install`. Use a virtual environment:
+
+```bash
+python3 -m venv ~/netscanx-venv
+source ~/netscanx-venv/bin/activate
+
+pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
+```
+
+Every new shell session needs `source ~/netscanx-venv/bin/activate` again before running `netscanx`.
+
+<details>
+<summary>Not using a venv (not recommended)</summary>
+
+```bash
+pip install --break-system-packages git+https://github.com/9t29zhmwdh-coder/NetScanX.git
+```
+
+This installs into the system Python and can conflict with OS-managed packages.
+</details>
+
+### Windows
+
+```powershell
+pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
+```
+
+### Local development (any platform)
+
+```bash
 git clone https://github.com/9t29zhmwdh-coder/NetScanX
 cd NetScanX
-pip install -e .
+bash scripts/dev.sh             # Windows: .\scripts\dev.ps1
 ```
+
+Creates a `.venv` and installs NetScanX in editable mode automatically (see [Local Development](#local-development)).
 
 ```bash
 # Discover hosts on local network (auto-detects subnet)
@@ -80,6 +109,7 @@ Options:
   --syn / --no-syn         TCP SYN scan (requires root/admin)
   --banner / --no-banner   Grab service banners
   --vendor / --no-vendor   Lookup MAC vendors (online API)
+  --hostname / --no-hostname  Resolve hostnames via reverse DNS  [default: on]
   --timeout FLOAT          Probe timeout in seconds         [default: 2.0]
   --concurrency N          Concurrent probes               [default: 200]
   --format [table|json|yaml]
@@ -93,6 +123,8 @@ sudo netscanx discover --arp --vendor     # ARP + MAC vendor lookup
 netscanx discover 192.168.1.1 -p 1-65535  # full port scan on single host
 netscanx discover --format json > hosts.json
 ```
+
+MAC addresses are read from the OS ARP cache after each ping, so `--vendor` and hostname resolution work without root. `sudo`/`--arp` only adds a raw ARP sweep for hosts that don't answer ICMP.
 
 ### `netscanx services [TARGET]`
 
@@ -159,10 +191,14 @@ netscanx diagnose --format json | jq '.checks[] | select(.status != "ok")'
 
 ### `netscanx dashboard`
 
+Runs a discover scan (hosts, MAC, vendor, hostname), a services scan (mDNS/SSDP), and diagnostics on startup and on every "Rescan", plus an on-demand ping/latency test to any IP or hostname from the browser.
+
 ```bash
 netscanx dashboard               # http://localhost:8080
 netscanx dashboard --port 9090
 ```
+
+The dashboard binds to `0.0.0.0` by default and has no authentication, so anyone on the same network can reach it and trigger scans or pings. Bind to `--host 127.0.0.1` if that's not desired.
 
 ---
 
