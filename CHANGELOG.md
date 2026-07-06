@@ -12,6 +12,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `discover`: the OS ARP cache is now always consulted to enrich already-discovered hosts with a MAC address (pinging a host makes the OS resolve it), so `--vendor` works without `sudo`/`--arp`.
 - `discover`/`services`/`diagnose`/`speedtest`/`dashboard`: progress messages (e.g. "Looking up N MAC vendors…") were printed to stdout via Rich `Console()`, corrupting `--format json`/`--format yaml` output when redirected. They now go to stderr.
 - `dashboard`: the background scan only ever read the ARP cache and ran diagnostics. Host discovery (ping/ARP sweep, vendor, hostname) and service discovery (mDNS/SSDP) never ran, leaving `/api/hosts` MAC-less and `/api/services` permanently empty.
+- `dashboard`: the Services table used `name + ip` as its list key; several real-world services (e.g. duplicate SSDP announcements from one host) share both, so duplicate keys made Alpine.js silently drop rows even though the count in the header was correct. The key now includes the loop index, type, and port.
+- `dashboard`: the Speedtest card checked for a nested `speedtest.latency` object that the `/api/speedtest` endpoint never returns (it returns the latency stats flat), so a result never rendered even on a successful ping.
 
 ### Added
 - `discover --hostname/--no-hostname`: reverse DNS hostname resolution for discovered hosts (default on).
