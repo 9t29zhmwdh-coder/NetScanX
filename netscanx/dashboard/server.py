@@ -19,7 +19,7 @@ from netscanx.cli.services import run_services_scan
 from netscanx.diagnostics.checks import DiagnosticsRunner
 from netscanx.scanner.layer3 import ping_stats
 
-app = FastAPI(title="NetScanX Dashboard", version="1.1.0")
+app = FastAPI(title="NetScanX Dashboard", version="0.2.0")
 
 _HOSTNAME_RE = re.compile(r"^[A-Za-z0-9]([A-Za-z0-9-]{0,62}\.?)+$")
 
