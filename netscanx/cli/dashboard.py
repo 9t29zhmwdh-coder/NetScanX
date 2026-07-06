@@ -6,7 +6,7 @@ import asyncio
 import click
 from rich.console import Console
 
-console = Console()
+console = Console(stderr=True)
 
 
 @click.command()

@@ -86,11 +86,12 @@
       <template x-if="hosts.length > 0">
         <div style="overflow-x:auto;">
           <table>
-            <thead><tr><th>IP</th><th>MAC</th><th>Vendor</th><th>Via</th></tr></thead>
+            <thead><tr><th>IP</th><th>Hostname</th><th>MAC</th><th>Vendor</th><th>Via</th></tr></thead>
             <tbody>
               <template x-for="h in hosts" :key="h.ip">
                 <tr>
                   <td class="ip" x-text="h.ip"></td>
+                  <td class="mono" x-text="h.hostname || '—'"></td>
                   <td class="mac" x-text="h.mac || '—'"></td>
                   <td style="font-size:.82rem;" x-text="h.vendor || '—'"></td>
                   <td>
@@ -149,6 +150,39 @@
             </template>
           </tbody>
         </table>
+      </div>
+    </template>
+  </div>
+
+  <!-- Speedtest -->
+  <div class="card">
+    <h2>Speedtest / Ping</h2>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+      <input type="text" x-model="speedtestTarget" placeholder="IP oder Hostname, z. B. 192.168.1.10"
+             @keydown.enter="runSpeedtest()"
+             style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;color:var(--text);font-family:monospace;">
+      <input type="number" x-model.number="speedtestCount" min="1" max="50"
+             style="width:80px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;color:var(--text);"
+             title="Anzahl Pings">
+      <button class="scan-btn" @click="runSpeedtest()" :disabled="speedtestRunning"
+              x-text="speedtestRunning ? 'Läuft…' : 'Ping'"></button>
+    </div>
+    <template x-if="speedtestError">
+      <p style="color:var(--err);font-size:.85rem;margin-bottom:.75rem;" x-text="speedtestError"></p>
+    </template>
+    <template x-if="!speedtest.host && !speedtestError">
+      <p style="color:var(--muted);font-size:.85rem;">Ziel eingeben und auf Ping klicken, Latenz, Jitter und Paketverlust werden gemessen.</p>
+    </template>
+    <template x-if="speedtest.latency">
+      <div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem;">
+          Ziel: <span class="ip" x-text="speedtest.host"></span>
+        </p>
+        <div class="stat-grid">
+          <div class="stat"><div class="val" x-text="speedtest.latency.avg_ms.toFixed(1) + ' ms'"></div><div class="lbl">Avg Latenz</div></div>
+          <div class="stat"><div class="val" x-text="speedtest.latency.jitter_ms.toFixed(1) + ' ms'"></div><div class="lbl">Jitter</div></div>
+          <div class="stat"><div class="val" x-text="speedtest.latency.packet_loss_pct.toFixed(0) + '%'"></div><div class="lbl">Paketverlust</div></div>
+        </div>
       </div>
     </template>
   </div>

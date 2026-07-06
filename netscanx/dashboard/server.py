@@ -2,20 +2,49 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, field_validator
 
-from netscanx.models import DiscoverResult, DiagnosticReport, ServicesResult
-from netscanx.scanner.layer2 import get_arp_cache
+from netscanx.cli.discover import _auto_detect_network, run_discover_scan
+from netscanx.cli.services import run_services_scan
 from netscanx.diagnostics.checks import DiagnosticsRunner
+from netscanx.scanner.layer3 import ping_stats
 
-app = FastAPI(title="NetScanX Dashboard", version="1.0.0")
+app = FastAPI(title="NetScanX Dashboard", version="1.1.0")
+
+_HOSTNAME_RE = re.compile(r"^[A-Za-z0-9]([A-Za-z0-9-]{0,62}\.?)+$")
+
+
+class SpeedtestRequest(BaseModel):
+    host: str
+    count: int = 15
+
+    @field_validator("host")
+    @classmethod
+    def validate_host(cls, v: str) -> str:
+        v = v.strip()
+        try:
+            ipaddress.ip_address(v)
+            return v
+        except ValueError:
+            pass
+        if len(v) <= 253 and _HOSTNAME_RE.match(v):
+            return v
+        raise ValueError("invalid host, must be an IP address or hostname")
+
+    @field_validator("count")
+    @classmethod
+    def validate_count(cls, v: int) -> int:
+        return max(1, min(v, 50))
 
 _STATIC = Path(__file__).parent / "static"
 
@@ -66,6 +95,24 @@ async def api_diagnostics():
     return _scan_cache.get("diagnostics", {})
 
 
+@app.get("/api/speedtest")
+async def api_speedtest_last():
+    return _scan_cache.get("speedtest", {})
+
+
+@app.post("/api/speedtest")
+async def api_speedtest_run(req: SpeedtestRequest):
+    try:
+        stats = await ping_stats(req.host, count=req.count, interval=0.1)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"speedtest failed: {e}")
+
+    data = json.loads(stats.model_dump_json())
+    _scan_cache["speedtest"] = data
+    await _registry.broadcast({"type": "speedtest", "data": data, "ts": _ts()})
+    return data
+
+
 @app.get("/api/scan")
 async def api_trigger_scan():
     asyncio.create_task(_background_scan())
@@ -95,12 +142,37 @@ async def startup():
 
 async def _background_scan():
     await _registry.broadcast({"type": "scan_start", "ts": _ts()})
+    target = _auto_detect_network()
 
     try:
-        arp_hosts = await get_arp_cache()
-        hosts_data = [json.loads(h.model_dump_json()) for h in arp_hosts]
+        discover_result = await run_discover_scan(
+            target=target,
+            do_arp=True,
+            do_ping=True,
+            do_vendor=True,
+            do_hostname=True,
+            timeout=1.5,
+            include_cache=True,
+        )
+        hosts_data = json.loads(discover_result.model_dump_json())["hosts"]
         _scan_cache["hosts"] = hosts_data
         await _registry.broadcast({"type": "hosts", "data": hosts_data, "ts": _ts()})
+    except Exception:
+        pass
+
+    try:
+        services_result = await run_services_scan(
+            target=target,
+            do_mdns=True,
+            do_ssdp=True,
+            do_netbios=False,
+            do_snmp=False,
+            mdns_timeout=4.0,
+            ssdp_timeout=3.0,
+        )
+        services_data = json.loads(services_result.model_dump_json())["services"]
+        _scan_cache["services"] = services_data
+        await _registry.broadcast({"type": "services", "data": services_data, "ts": _ts()})
     except Exception:
         pass
 
