@@ -139,7 +139,7 @@
         <table>
           <thead><tr><th>Name</th><th>Type</th><th>Host / IP</th><th>Port</th><th>Source</th></tr></thead>
           <tbody>
-            <template x-for="s in services" :key="s.name + s.ip">
+            <template x-for="(s, i) in services" :key="i + '-' + s.name + '-' + s.ip + '-' + s.type + '-' + s.port">
               <tr>
                 <td x-text="s.name"></td>
                 <td class="mono" x-text="s.type"></td>
@@ -173,15 +173,15 @@
     <template x-if="!speedtest.host && !speedtestError">
       <p style="color:var(--muted);font-size:.85rem;">Ziel eingeben und auf Ping klicken, Latenz, Jitter und Paketverlust werden gemessen.</p>
     </template>
-    <template x-if="speedtest.latency">
+    <template x-if="speedtest.avg_ms !== undefined">
       <div>
         <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem;">
           Ziel: <span class="ip" x-text="speedtest.host"></span>
         </p>
         <div class="stat-grid">
-          <div class="stat"><div class="val" x-text="speedtest.latency.avg_ms.toFixed(1) + ' ms'"></div><div class="lbl">Avg Latenz</div></div>
-          <div class="stat"><div class="val" x-text="speedtest.latency.jitter_ms.toFixed(1) + ' ms'"></div><div class="lbl">Jitter</div></div>
-          <div class="stat"><div class="val" x-text="speedtest.latency.packet_loss_pct.toFixed(0) + '%'"></div><div class="lbl">Paketverlust</div></div>
+          <div class="stat"><div class="val" x-text="speedtest.avg_ms.toFixed(1) + ' ms'"></div><div class="lbl">Avg Latenz</div></div>
+          <div class="stat"><div class="val" x-text="speedtest.jitter_ms.toFixed(1) + ' ms'"></div><div class="lbl">Jitter</div></div>
+          <div class="stat"><div class="val" x-text="speedtest.packet_loss_pct.toFixed(0) + '%'"></div><div class="lbl">Paketverlust</div></div>
         </div>
       </div>
     </template>
