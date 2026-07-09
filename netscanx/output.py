@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from netscanx.health.models import HealthReport
 from netscanx.models import (
     DiagnosticReport,
     DiscoverResult,
@@ -187,3 +188,84 @@ def print_diagnostic(report: DiagnosticReport) -> None:
         f"[{warn_c}]! {report.summary_warning} warnings[/{warn_c}]  "
         f"[{err_c}]✗ {report.summary_error} errors[/{err_c}]"
     )
+
+
+_CHANGE_COLOR = {
+    "new_device": "green",
+    "device_gone": "red",
+    "port_opened": "yellow",
+    "port_closed": "dim",
+    "hostname_changed": "yellow",
+    "os_guess_changed": "yellow",
+    "ip_changed": "yellow",
+    "mac_changed": "red",
+    "vendor_changed": "dim",
+    "service_added": "green",
+    "service_removed": "dim",
+    "firmware_changed": "yellow",
+}
+
+
+def print_changes(changes: list[dict]) -> None:
+    """changes: list of dicts with keys device_ip, device_hostname,
+    change_type, field, old_value, new_value, detected_at (already
+    resolved/joined by the caller, since ChangeEvent rows only carry a
+    device_id FK)."""
+    if not changes:
+        console.print("[green]No changes detected.[/green]")
+        return
+
+    table = Table(
+        title=f"NetScanX Change Report ({len(changes)} changes)", box=box.ROUNDED
+    )
+    table.add_column("Device", style="cyan", min_width=15)
+    table.add_column("Change", min_width=16)
+    table.add_column("Field", style="dim", max_width=15)
+    table.add_column("Old → New")
+    table.add_column("Detected", style="dim")
+
+    for c in changes:
+        color = _CHANGE_COLOR.get(c["change_type"], "white")
+        device = c.get("device_hostname") or c.get("device_ip") or f"device #{c.get('device_id')}"
+        old_new = ""
+        if c.get("old_value") or c.get("new_value"):
+            old_new = f"{c.get('old_value') or '—'} → {c.get('new_value') or '—'}"
+        table.add_row(
+            device,
+            f"[{color}]{c['change_type']}[/{color}]",
+            c.get("field") or "—",
+            old_new or "—",
+            str(c.get("detected_at") or ""),
+        )
+
+    console.print(table)
+
+
+def print_health(report: HealthReport) -> None:
+    _status_color = {"ok": "green", "warning": "yellow", "error": "red", "skipped": "dim"}
+    _status_icon = {"ok": "✓", "warning": "!", "error": "✗", "skipped": "–"}
+
+    score_color = "green" if report.score >= 80 else "yellow" if report.score >= 50 else "red"
+    console.print(Panel.fit(
+        f"[bold]Health Report — {report.target}[/bold]\n"
+        f"Health Score: [{score_color}]{report.score}/100[/{score_color}]",
+        border_style="blue",
+    ))
+
+    table = Table(box=box.SIMPLE, show_header=False, padding=(0, 1))
+    table.add_column("Icon", width=3)
+    table.add_column("Check", style="bold", min_width=20)
+    table.add_column("Status", min_width=10)
+    table.add_column("Message")
+
+    for check in report.checks:
+        color = _status_color.get(check.status, "white")
+        icon = _status_icon.get(check.status, "?")
+        table.add_row(
+            f"[{color}]{icon}[/{color}]",
+            check.name,
+            f"[{color}]{check.status.upper()}[/{color}]",
+            check.message,
+        )
+
+    console.print(table)

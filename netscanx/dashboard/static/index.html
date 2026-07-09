@@ -62,6 +62,7 @@
       <span x-text="wsState === 'connected' ? 'Live' : 'Offline'" style="font-size:.85rem;color:var(--muted)"></span>
     </span>
     <button class="scan-btn" @click="triggerScan()" :disabled="scanning" x-text="scanning ? 'Scanning…' : 'Rescan'"></button>
+    <button class="scan-btn" style="background:var(--blue);" @click="pinBaseline()" :disabled="baselinePinning" x-text="baselinePinning ? 'Pinning…' : 'Pin Baseline'"></button>
   </div>
 </header>
 
@@ -146,6 +147,66 @@
                 <td class="ip" x-text="s.ip || s.host || '—'"></td>
                 <td x-text="s.port || '—'"></td>
                 <td><span class="tag" x-text="s.source"></span></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+  </div>
+
+  <!-- Change Report -->
+  <div class="card">
+    <h2>Change Report (<span x-text="changes.length"></span>)</h2>
+    <template x-if="baselineError">
+      <p style="color:var(--err);font-size:.85rem;margin-bottom:.75rem;" x-text="baselineError"></p>
+    </template>
+    <template x-if="changes.length === 0">
+      <p style="color:var(--muted);font-size:.85rem;">No changes detected since the last scan.</p>
+    </template>
+    <template x-if="changes.length > 0">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Device</th><th>Change</th><th>Field</th><th>Old → New</th><th>Detected</th></tr></thead>
+          <tbody>
+            <template x-for="(c, i) in changes" :key="i + '-' + c.device_id + '-' + c.change_type + '-' + c.detected_at">
+              <tr>
+                <td x-text="c.device_hostname || c.device_ip || ('device #' + c.device_id)"></td>
+                <td>
+                  <span class="badge"
+                        :class="['new_device','service_added'].includes(c.change_type) ? 'badge-ok' : ['device_gone','mac_changed'].includes(c.change_type) ? 'badge-err' : ['port_closed','vendor_changed','service_removed'].includes(c.change_type) ? 'badge-skip' : 'badge-warn'"
+                        x-text="c.change_type"></span>
+                </td>
+                <td class="mono" x-text="c.field || '—'"></td>
+                <td class="mono" x-text="(c.old_value || c.new_value) ? (c.old_value || '—') + ' → ' + (c.new_value || '—') : '—'"></td>
+                <td class="mono" x-text="c.detected_at || '—'"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+  </div>
+
+  <!-- Assets -->
+  <div class="card">
+    <h2>Asset Inventory (<span x-text="assets.length"></span>)</h2>
+    <template x-if="assets.length === 0">
+      <p style="color:var(--muted);font-size:.85rem;">No persisted devices yet. Devices appear here after the first scan.</p>
+    </template>
+    <template x-if="assets.length > 0">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>IP</th><th>Hostname</th><th>MAC</th><th>Vendor</th><th>Type</th><th>Last Seen</th></tr></thead>
+          <tbody>
+            <template x-for="d in assets" :key="d.id">
+              <tr>
+                <td class="ip" x-text="d.ip || '—'"></td>
+                <td class="mono" x-text="d.hostname || '—'"></td>
+                <td class="mac" x-text="d.mac || '—'"></td>
+                <td style="font-size:.82rem;" x-text="d.vendor || '—'"></td>
+                <td><span class="tag" x-text="d.device_type || 'unknown'"></span></td>
+                <td class="mono" x-text="(d.last_seen || '—').slice(0, 19)"></td>
               </tr>
             </template>
           </tbody>

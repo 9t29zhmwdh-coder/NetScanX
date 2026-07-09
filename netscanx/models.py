@@ -40,6 +40,8 @@ class Host(BaseModel):
     open_ports: list[Port] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
     discovered_via: list[str] = Field(default_factory=list)
+    os_guess: str | None = None  # passive TTL-based heuristic, see inventory/identity.py
+    device_type: str | None = None  # passive heuristic, see inventory/identity.py
     timestamp: datetime = Field(default_factory=_now)
 
 

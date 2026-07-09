@@ -5,6 +5,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-09
+
+### Added
+- `netscanx baseline`: run a fresh scan and pin it as the reference baseline for drift detection.
+- `netscanx changes [--since-baseline|--since-last]`: show devices/ports/services that changed since the last scan or the pinned baseline. This is the project's new centerpiece feature.
+- `netscanx assets`: list the persisted device inventory (distinct from a single scan's transient results).
+- `netscanx health [TARGET]`: local machine health checks (disk/CPU/RAM/Defender/BitLocker/Windows Update) without a target, or lightweight network-observable health signals (reachability, DNS response, risky open ports) for a given host.
+- `discover --persist [--db-path PATH]`: persist scan results to the local SQLite inventory so they participate in baseline/drift detection.
+- Passive Asset Discovery Plus: every discovered host now gets a best-effort `os_guess` (TTL heuristic) and `device_type` (printer/NAS/router/access-point/workstation/server) classification, with no additional network calls or credentials required.
+- SQLite persistence layer (SQLAlchemy 2.0 async + aiosqlite): every scan is stored as a `ScanRun` with per-device `DeviceSnapshot`s, diffed against the previous snapshot to produce `ChangeEvent` records.
+- Dashboard: new Change Report and Asset Inventory cards, a Pin Baseline button, and `GET /api/changes`, `GET /api/assets`, `POST /api/baseline` endpoints. The background scan now persists automatically and broadcasts a `change_detected` WebSocket event when drift is found.
+- Portable USB launcher: single-file PyInstaller binaries for Windows/macOS/Linux (`NetScanX-Start-Windows.exe`, `NetScanX-Start-macOS`, `NetScanX-Start-Linux`). Double-clicking with no arguments launches the dashboard; running from a terminal exposes the full CLI. The SQLite database is stored next to the binary (`NetScanX-Data/`) so scan history travels with the USB stick across machines. Built automatically on tagged releases via `.github/workflows/release.yml`.
+- Initial `tests/` suite (pytest + pytest-asyncio) covering the DB path resolution, schema round-trips, device identity heuristics, drift-detection diff logic, health score arithmetic, and an end-to-end persistence/diff scenario. CI now runs `pytest` in addition to lint.
+
+### Changed
+- Version bumped to 0.3.0.
+- `netscanx/models.py`: `Host` gained two optional fields, `os_guess` and `device_type`, populated by the new passive enrichment pass.
+
+### Security
+- New credential-requiring features (WMI-based enrichment, WinRM-based remote health checks) are intentionally left as unimplemented interface stubs in this release rather than shipped half-finished; when implemented, they will use OS-keychain-backed credential storage per SECURITY.md, never `.env`/plaintext.
+
 ## [0.2.0] - 2026-07-06
 
 ### Fixed

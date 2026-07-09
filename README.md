@@ -24,7 +24,11 @@ Runs on **macOS, Linux, and Windows**. No build step required, install with `pip
 | **Services** | mDNS, SSDP/UPnP, NetBIOS, SNMP discovery |
 | **Performance** | P2P speedtest: TCP throughput, UDP packet loss, latency, jitter |
 | **Diagnostics** | DNS errors, duplicate DHCP, routing problems, latency spikes, subnet misconfiguration |
-| **Dashboard** | Optional web dashboard (FastAPI + Alpine.js + Chart.js) |
+| **Asset Discovery Plus** | Passive OS-family guess (TTL heuristic) and device-type classification (printer/NAS/router/AP/workstation/server), no extra network calls |
+| **Health Check Engine** | Local machine health (disk/CPU/RAM/Defender/BitLocker/Windows Update) or lightweight network-observable health signals (reachability, DNS response, risky open ports) |
+| **Baseline & Drift Detection** | Persists every scan to a local SQLite database and diffs it against the last scan or a pinned baseline: new/gone devices, port changes, hostname/IP/MAC/OS changes, service changes |
+| **Dashboard** | Optional web dashboard (FastAPI + Alpine.js + Chart.js), now with Change Report and Asset Inventory views |
+| **Portable Mode** | Single-file launcher for Windows/macOS/Linux, runnable from a USB stick, no install required |
 | **Output** | Rich tables (default), JSON, YAML for automation |
 
 ¹ Requires root/admin.
@@ -200,6 +204,50 @@ netscanx dashboard --port 9090
 
 The dashboard binds to `0.0.0.0` by default and has no authentication, so anyone on the same network can reach it and trigger scans or pings. Bind to `--host 127.0.0.1` if that's not desired.
 
+### `netscanx baseline`
+
+Runs a fresh scan and pins it as the reference baseline for drift detection.
+
+```bash
+netscanx baseline --target 10.0.0.0/24
+```
+
+### `netscanx changes`
+
+Shows what changed (new/gone devices, port changes, hostname/IP/MAC/OS changes, service changes) since the last scan or the pinned baseline. This is NetScanX's centerpiece feature: the question it answers is "what changed", not just "what's on the network".
+
+```
+Options:
+  --since-baseline          Show all changes since the pinned baseline
+  --since-last               Show changes from the most recent scan  [default]
+  --format [table|json|yaml]
+  --db-path PATH             Override the SQLite database path
+```
+
+```bash
+netscanx discover --persist          # scan and store it
+netscanx changes                     # what changed vs. the previous persisted scan
+netscanx baseline                    # pin the current state as a reference point
+netscanx changes --since-baseline    # everything that drifted since that baseline
+```
+
+### `netscanx assets`
+
+Lists the persisted device inventory (every device ever seen, not just the last scan).
+
+```bash
+netscanx assets --format json
+```
+
+### `netscanx health [TARGET]`
+
+Runs health checks. Without `TARGET`: local-machine health (disk space, CPU, RAM, Windows Defender, BitLocker, Windows Update; the last three are Windows-only and `skipped` elsewhere). With `TARGET`: lightweight network-observable health signals (reachability, DNS response time, risky open ports like Telnet/SMB) for that host, requiring no credentials.
+
+```bash
+netscanx health                 # local machine
+netscanx health 192.168.1.10    # a specific host on the network
+```
+
 ---
 
 ## Privilege Requirements
@@ -226,15 +274,47 @@ sudo setcap cap_net_raw+ep .venv/bin/python
 
 ```
 netscanx/
-├── cli/           → Click commands (discover, services, speedtest, diagnose, dashboard)
+├── cli/           → Click commands (discover, services, speedtest, diagnose, dashboard,
+│                     baseline, changes, assets, health)
 ├── scanner/       → Layer 2/3/4 probe modules + privilege helpers
 ├── discovery/     → mDNS, SSDP, NetBIOS, SNMP
 ├── performance/   → P2P speedtest client/server
 ├── diagnostics/   → Network health checks
 ├── dashboard/     → FastAPI + Alpine.js + Chart.js web UI
+├── storage/       → SQLite persistence (SQLAlchemy 2.0 async): schema, engine, repository,
+│                     portable-vs-installed DB path resolution
+├── inventory/     → Device identity resolution + drift-detection diff logic + orchestration
+├── health/        → Health Check Engine (local, network-observable, remote-stub)
+├── enrichment/    → Passive OS/device-type enrichment + WMI enrichment interface stub
 ├── models.py      → Pydantic models (Host, Port, ServiceInfo, …)
 └── output.py      → Rich / JSON / YAML formatters
+
+__main__frozen__.py → PyInstaller entry point for the portable USB launcher
+build/               → PyInstaller .spec files (Windows/macOS/Linux)
 ```
+
+---
+
+## Portable / USB Mode
+
+Since v0.3.0, NetScanX can run from a USB stick on any Windows, macOS, or Linux machine with no installation. Download the release binaries from the [Releases page](https://github.com/9t29zhmwdh-coder/NetScanX/releases) and copy them to the root of the stick:
+
+```
+USB-Stick-Root/
+├── NetScanX-Start-Windows.exe
+├── NetScanX-Start-macOS
+├── NetScanX-Start-Linux
+└── README.txt
+```
+
+Double-clicking a binary with no arguments launches the dashboard and opens your browser, mirroring `netscanx dashboard`. Running it from a terminal with arguments exposes the full CLI (`NetScanX-Start-Windows.exe discover --arp`, etc.). A `NetScanX-Data/` folder appears next to the binary on first run, containing the SQLite database. This is how scan history and baselines travel with the stick across different machines. Override the location with `--db-path` or `NETSCANX_DB_PATH` if needed.
+
+Portable mode runs unprivileged by default on unfamiliar machines, just like the regular CLI's non-root fallback (see [Privilege Requirements](#privilege-requirements) below).
+
+**Known limitations** (binaries are not code-signed):
+- **Windows:** the `.exe` is unsigned and will trigger a SmartScreen warning ("Windows protected your PC"). Click "More info" → "Run anyway".
+- **macOS:** the binary is unsigned and will trigger a Gatekeeper "unidentified developer" block on first run. Right-click the file → "Open" to bypass it once.
+- **Linux:** FAT32/exFAT-formatted USB drives don't preserve the Unix executable bit, so the binary may not run on double-click. Run `chmod +x NetScanX-Start-Linux` first, or use your file manager's "Run as program" option.
 
 ---
 

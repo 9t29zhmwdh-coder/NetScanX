@@ -17,9 +17,12 @@ from pydantic import BaseModel, field_validator
 from netscanx.cli.discover import _auto_detect_network, run_discover_scan
 from netscanx.cli.services import run_services_scan
 from netscanx.diagnostics.checks import DiagnosticsRunner
+from netscanx.inventory.service import InventoryService
 from netscanx.scanner.layer3 import ping_stats
 
-app = FastAPI(title="NetScanX Dashboard", version="0.2.0")
+app = FastAPI(title="NetScanX Dashboard", version="0.3.0")
+
+_inventory = InventoryService()
 
 _HOSTNAME_RE = re.compile(r"^[A-Za-z0-9]([A-Za-z0-9-]{0,62}\.?)+$")
 
@@ -119,6 +122,55 @@ async def api_trigger_scan():
     return {"status": "scan_started"}
 
 
+@app.get("/api/assets")
+async def api_assets():
+    devices = await _inventory.list_assets()
+    return [
+        {
+            "id": d.id,
+            "ip": d.last_ip,
+            "hostname": d.last_hostname,
+            "mac": d.primary_mac,
+            "vendor": d.last_vendor,
+            "os_guess": d.last_os_guess,
+            "device_type": d.last_device_type,
+            "first_seen": d.first_seen.isoformat() if d.first_seen else None,
+            "last_seen": d.last_seen.isoformat() if d.last_seen else None,
+        }
+        for d in devices
+    ]
+
+
+@app.get("/api/changes")
+async def api_changes(since_baseline: bool = False):
+    change_events = await _inventory.get_changes(since_baseline=since_baseline)
+    devices = {d.id: d for d in await _inventory.list_assets()}
+    return [_change_to_dict(c, devices) for c in change_events]
+
+
+@app.post("/api/baseline")
+async def api_pin_baseline():
+    try:
+        run = await _inventory.pin_baseline()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"run_id": run.id, "target": run.target, "host_count": run.host_count}
+
+
+def _change_to_dict(change, devices: dict) -> dict:
+    device = devices.get(change.device_id)
+    return {
+        "device_id": change.device_id,
+        "device_ip": device.last_ip if device else None,
+        "device_hostname": device.last_hostname if device else None,
+        "change_type": change.change_type,
+        "field": change.field,
+        "old_value": change.old_value,
+        "new_value": change.new_value,
+        "detected_at": change.detected_at.isoformat() if change.detected_at else None,
+    }
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
     await _registry.connect(ws)
@@ -143,6 +195,9 @@ async def startup():
 async def _background_scan():
     await _registry.broadcast({"type": "scan_start", "ts": _ts()})
     target = _auto_detect_network()
+
+    discover_result = None
+    services_result = None
 
     try:
         discover_result = await run_discover_scan(
@@ -184,6 +239,19 @@ async def _background_scan():
         await _registry.broadcast({"type": "diagnostics", "data": diag_data, "ts": _ts()})
     except Exception:
         pass
+
+    if discover_result is not None:
+        try:
+            _run, change_records = await _inventory.persist_results(discover_result, services_result)
+            if change_records:
+                devices = {d.id: d for d in await _inventory.list_assets()}
+                changes = await _inventory.get_changes()
+                changes_data = [_change_to_dict(c, devices) for c in changes]
+                await _registry.broadcast(
+                    {"type": "change_detected", "data": changes_data, "ts": _ts()}
+                )
+        except Exception:
+            pass
 
     await _registry.broadcast({"type": "scan_done", "ts": _ts()})
 
