@@ -22,6 +22,10 @@ Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation
 
 ---
 
+> 🌱 Neu hier? → [Schritt-für-Schritt-Anleitung für Einsteiger](GETTING_STARTED.de.md)
+
+---
+
 ## Features
 
 | Modul | Funktion |
@@ -47,8 +51,6 @@ Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation
 
 - Python 3.11+ (Windows: von [python.org](https://www.python.org/downloads/windows/) oder aus dem Microsoft Store; macOS/Linux: meist schon vorinstalliert oder über den Paketmanager) — **nur nötig für die per `pip` installierte CLI**, nicht für die portable USB-Version weiter unten
 - macOS, Linux oder Windows 10/11
-
-> 🌱 Neu hier? → [Schritt-für-Schritt-Anleitung für Einsteiger](GETTING_STARTED.de.md)
 
 ---
 
