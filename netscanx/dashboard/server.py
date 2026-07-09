@@ -80,7 +80,7 @@ _scan_cache: dict[str, Any] = {}
 @app.get("/", response_class=HTMLResponse)
 async def root():
     index = _STATIC / "index.html"
-    return HTMLResponse(content=index.read_text())
+    return HTMLResponse(content=index.read_text(encoding="utf-8"))
 
 
 @app.get("/api/hosts")
