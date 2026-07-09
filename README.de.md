@@ -70,9 +70,15 @@ Das installiert direkt ins System-Python und kann mit Paketen kollidieren, die v
 
 ### Windows
 
+Erfordert Python 3.11+ von [python.org](https://www.python.org/downloads/windows/) (beim Installer **"Add python.exe to PATH"** ankreuzen) oder aus dem Microsoft Store.
+
 ```powershell
-pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
+py -m pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
 ```
+
+Der `py`-Launcher (Teil des offiziellen Windows-Installers) steht zuverlässiger im `PATH` als ein blosses `pip`/`python`, was die häufigste Ursache für `pip : Die Benennung "pip" wurde nicht als Name eines Cmdlet ... erkannt` ist. Findet sich auch `py` nicht, ist Python entweder nicht installiert oder wurde nicht zum `PATH` hinzugefügt; Installer erneut ausführen und "Ändern" → "Add to PATH" wählen, oder komplett neu von python.org installieren mit gesetzter Checkbox.
+
+Gar kein Python installieren wollen? Den [portablen USB-Launcher](#portable--usb-modus) nutzen: eine einzelne `.exe`, keine Installation, keine PATH-Probleme.
 
 ### Lokale Entwicklung (alle Plattformen)
 

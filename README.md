@@ -68,9 +68,15 @@ This installs into the system Python and can conflict with OS-managed packages.
 
 ### Windows
 
+Requires Python 3.11+ from [python.org](https://www.python.org/downloads/windows/) (check **"Add python.exe to PATH"** during install) or the Microsoft Store.
+
 ```powershell
-pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
+py -m pip install git+https://github.com/9t29zhmwdh-coder/NetScanX.git
 ```
+
+The `py` launcher (bundled with the official Windows installer) is more reliably on `PATH` than a bare `pip`/`python` command, which is the most common cause of `pip : Die Benennung "pip" wurde nicht als Name eines Cmdlet ... erkannt` / `pip is not recognized`. If `py` isn't found either, Python itself isn't installed or wasn't added to `PATH`; reinstall from python.org with that checkbox enabled, or run the installer again and choose "Modify" → "Add to PATH".
+
+Don't want to install Python at all? Use the [portable USB launcher](#portable--usb-mode) instead: a single `.exe`, no install, no PATH issues.
 
 ### Local development (any platform)
 
