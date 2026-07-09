@@ -3,6 +3,8 @@ function app() {
     hosts: [],
     services: [],
     diagnostics: {},
+    changes: [],
+    assets: [],
     scanning: false,
     wsState: 'disconnected',
     _ws: null,
@@ -12,6 +14,8 @@ function app() {
     speedtestRunning: false,
     speedtestError: '',
     speedtest: {},
+    baselinePinning: false,
+    baselineError: '',
 
     init() {
       this.connectWS();
@@ -65,6 +69,9 @@ function app() {
         case 'speedtest':
           this.speedtest = msg.data || {};
           break;
+        case 'change_detected':
+          this.changes = msg.data || [];
+          break;
         case 'cache':
           if (msg.data.hosts) this.hosts = msg.data.hosts;
           if (msg.data.services) this.services = msg.data.services;
@@ -76,16 +83,20 @@ function app() {
 
     async fetchInitial() {
       try {
-        const [h, s, d, sp] = await Promise.all([
+        const [h, s, d, sp, c, a] = await Promise.all([
           fetch('/api/hosts').then(r => r.json()),
           fetch('/api/services').then(r => r.json()),
           fetch('/api/diagnostics').then(r => r.json()),
           fetch('/api/speedtest').then(r => r.json()),
+          fetch('/api/changes').then(r => r.json()),
+          fetch('/api/assets').then(r => r.json()),
         ]);
         if (h.length) this.hosts = h;
         if (s.length) this.services = s;
         if (d.checks) this.diagnostics = d;
         if (sp.host) this.speedtest = sp;
+        if (c.length) this.changes = c;
+        if (a.length) this.assets = a;
       } catch (_) {}
     },
 
@@ -121,6 +132,24 @@ function app() {
         this.speedtestError = e.message || 'Speedtest fehlgeschlagen';
       } finally {
         this.speedtestRunning = false;
+      }
+    },
+
+    async pinBaseline() {
+      this.baselineError = '';
+      this.baselinePinning = true;
+      try {
+        const resp = await fetch('/api/baseline', { method: 'POST' });
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.detail || `HTTP ${resp.status}`);
+        }
+        const a = await fetch('/api/assets').then(r => r.json());
+        if (a.length) this.assets = a;
+      } catch (e) {
+        this.baselineError = e.message || 'Baseline konnte nicht gesetzt werden';
+      } finally {
+        this.baselinePinning = false;
       }
     },
   };

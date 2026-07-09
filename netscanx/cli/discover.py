@@ -51,6 +51,9 @@ def _auto_detect_network() -> str:
               type=click.Choice(["table", "json", "yaml"]), help="Output format")
 @click.option("--cache/--no-cache", default=False, help="Include ARP cache entries")
 @click.option("-v", "--verbose", is_flag=True, help="Show port details and banners")
+@click.option("--persist/--no-persist", default=False,
+              help="Persist results to the local SQLite inventory for baseline/drift detection")
+@click.option("--db-path", default=None, help="Override the SQLite database path (implies --persist)")
 def discover(
     target: str | None,
     arp: bool,
@@ -65,6 +68,8 @@ def discover(
     fmt: str,
     cache: bool,
     verbose: bool,
+    persist: bool,
+    db_path: str | None,
 ) -> None:
     """Discover hosts on the network using ARP, ICMP, and port scanning.
 
@@ -94,6 +99,8 @@ def discover(
         fmt=fmt,
         include_cache=cache,
         verbose=verbose,
+        persist=persist or bool(db_path),
+        db_path=db_path,
     ))
 
 
@@ -111,6 +118,8 @@ async def _run(
     fmt: str,
     include_cache: bool,
     verbose: bool,
+    persist: bool = False,
+    db_path: str | None = None,
 ) -> None:
     result = await run_discover_scan(
         target=target,
@@ -132,6 +141,20 @@ async def _run(
         emit_yaml(result)
     else:
         print_discover(result, verbose=verbose)
+
+    if persist:
+        from pathlib import Path
+
+        from netscanx.inventory.service import InventoryService
+
+        service = InventoryService(db_path=Path(db_path) if db_path else None)
+        _run_record, changes = await service.persist_results(result)
+        if changes:
+            console.print(
+                f"[cyan]{len(changes)} change(s) detected[/cyan] -- run `netscanx changes` for details"
+            )
+        else:
+            console.print("[dim]No changes since last persisted scan.[/dim]")
 
 
 async def run_discover_scan(

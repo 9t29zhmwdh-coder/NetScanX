@@ -26,7 +26,11 @@ Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation
 | **Services** | mDNS, SSDP/UPnP, NetBIOS, SNMP-Discovery |
 | **Performance** | P2P-Speedtest: TCP-Durchsatz, UDP-Paketverlust, Latenz, Jitter |
 | **Diagnostics** | DNS-Fehler, doppelte DHCP-Server, Routing-Probleme, Latenz-Spitzen, Subnetz-Fehlkonfiguration |
-| **Dashboard** | Optionales Web-Dashboard (FastAPI + Alpine.js + Chart.js) |
+| **Asset Discovery Plus** | Passive OS-Familie-Schätzung (TTL-Heuristik) und Geräte-Typ-Klassifizierung (Drucker/NAS/Router/AP/Workstation/Server), ohne zusätzliche Netzwerk-Calls |
+| **Health Check Engine** | Lokale Maschinen-Gesundheit (Disk/CPU/RAM/Defender/BitLocker/Windows Update) oder leichte netzwerk-beobachtbare Gesundheitssignale (Erreichbarkeit, DNS-Antwortzeit, riskante offene Ports) |
+| **Baseline & Drift Detection** | Speichert jeden Scan lokal in SQLite und vergleicht ihn mit dem letzten Scan oder einer gepinnten Baseline: neue/verschwundene Geräte, Port-Änderungen, Hostname-/IP-/MAC-/OS-Änderungen, Service-Änderungen |
+| **Dashboard** | Optionales Web-Dashboard (FastAPI + Alpine.js + Chart.js), jetzt mit Change-Report- und Asset-Inventory-Ansicht |
+| **Portable Mode** | Einzeldatei-Launcher für Windows/macOS/Linux, lauffähig ab USB-Stick, keine Installation nötig |
 | **Output** | Rich-Tabellen (Standard), JSON, YAML für Automatisierung |
 
 ¹ Erfordert root/Administrator.
@@ -185,6 +189,50 @@ netscanx dashboard --port 9090
 
 Das Dashboard bindet standardmässig an `0.0.0.0` und hat keine Authentifizierung, jeder im selben Netzwerk kann darauf zugreifen und Scans/Pings auslösen. Bei Bedarf mit `--host 127.0.0.1` auf localhost beschränken.
 
+### `netscanx baseline`
+
+Führt einen frischen Scan aus und pinnt ihn als Referenz-Baseline für die Drift-Erkennung.
+
+```bash
+netscanx baseline --target 10.0.0.0/24
+```
+
+### `netscanx changes`
+
+Zeigt, was sich seit dem letzten Scan oder der gepinnten Baseline verändert hat (neue/verschwundene Geräte, Port-Änderungen, Hostname-/IP-/MAC-/OS-Änderungen, Service-Änderungen). Das ist das Herzstück von NetScanX: nicht "welche Geräte gibt es", sondern "was hat sich verändert".
+
+```
+Optionen:
+  --since-baseline           Alle Änderungen seit der gepinnten Baseline anzeigen
+  --since-last                Änderungen seit dem letzten Scan anzeigen  [Standard]
+  --format [table|json|yaml]
+  --db-path PATH              SQLite-Datenbankpfad überschreiben
+```
+
+```bash
+netscanx discover --persist          # Scan durchführen und speichern
+netscanx changes                     # was hat sich seit dem letzten gespeicherten Scan geändert
+netscanx baseline                    # aktuellen Zustand als Referenzpunkt pinnen
+netscanx changes --since-baseline    # alles, was sich seit dieser Baseline verändert hat
+```
+
+### `netscanx assets`
+
+Listet das gespeicherte Geräte-Inventar auf (jedes je gesehene Gerät, nicht nur der letzte Scan).
+
+```bash
+netscanx assets --format json
+```
+
+### `netscanx health [TARGET]`
+
+Führt Health-Checks aus. Ohne `TARGET`: Gesundheit der lokalen Maschine (Speicherplatz, CPU, RAM, Windows Defender, BitLocker, Windows Update; die letzten drei nur unter Windows, sonst `skipped`). Mit `TARGET`: leichte netzwerk-beobachtbare Gesundheitssignale (Erreichbarkeit, DNS-Antwortzeit, riskante offene Ports wie Telnet/SMB) für diesen Host, ohne Credentials nötig.
+
+```bash
+netscanx health                 # lokale Maschine
+netscanx health 192.168.1.10    # ein bestimmter Host im Netzwerk
+```
+
 ---
 
 ## Berechtigungen
@@ -211,15 +259,47 @@ sudo setcap cap_net_raw+ep .venv/bin/python
 
 ```
 netscanx/
-├── cli/           → Click-Befehle (discover, services, speedtest, diagnose, dashboard)
+├── cli/           → Click-Befehle (discover, services, speedtest, diagnose, dashboard,
+│                     baseline, changes, assets, health)
 ├── scanner/       → Layer-2/3/4-Scan-Module + Privilege-Helpers
 ├── discovery/     → mDNS, SSDP, NetBIOS, SNMP
 ├── performance/   → P2P-Speedtest Client/Server
 ├── diagnostics/   → Netzwerk-Health-Checks
 ├── dashboard/     → FastAPI + Alpine.js + Chart.js Web-UI
+├── storage/       → SQLite-Persistenz (SQLAlchemy 2.0 async): Schema, Engine, Repository,
+│                     portable-vs-installiert DB-Pfad-Auflösung
+├── inventory/     → Geräte-Identitätsauflösung + Drift-Erkennungs-Diff-Logik + Orchestrierung
+├── health/        → Health Check Engine (lokal, netzwerk-beobachtbar, Remote-Stub)
+├── enrichment/    → Passive OS-/Geräte-Typ-Anreicherung + WMI-Enrichment-Schnittstellen-Stub
 ├── models.py      → Pydantic-Modelle (Host, Port, ServiceInfo, …)
 └── output.py      → Rich / JSON / YAML Formatter
+
+__main__frozen__.py → PyInstaller-Entry-Point für den portablen USB-Launcher
+build/               → PyInstaller .spec-Dateien (Windows/macOS/Linux)
 ```
+
+---
+
+## Portable / USB-Modus
+
+Seit v0.3.0 läuft NetScanX ab einem USB-Stick auf jedem Windows-, macOS- oder Linux-Rechner, ohne Installation. Die Release-Binaries von der [Releases-Seite](https://github.com/9t29zhmwdh-coder/NetScanX/releases) herunterladen und in die Wurzel des Sticks kopieren:
+
+```
+USB-Stick-Root/
+├── NetScanX-Start-Windows.exe
+├── NetScanX-Start-macOS
+├── NetScanX-Start-Linux
+└── README.txt
+```
+
+Ein Doppelklick auf ein Binary ohne Argumente startet das Dashboard und öffnet den Browser, analog zu `netscanx dashboard`. Ein Aufruf aus dem Terminal mit Argumenten bietet die volle CLI (`NetScanX-Start-Windows.exe discover --arp` usw.). Beim ersten Start entsteht ein `NetScanX-Data/`-Ordner neben dem Binary mit der SQLite-Datenbank. So wandert die Scan-Historie und die Baselines mit dem Stick über verschiedene Rechner. Bei Bedarf mit `--db-path` oder `NETSCANX_DB_PATH` überschreiben.
+
+Der portable Modus läuft standardmässig unprivilegiert auf fremden Rechnern, genau wie der Non-Root-Fallback der regulären CLI (siehe [Berechtigungen](#berechtigungen) unten).
+
+**Bekannte Einschränkungen** (die Binaries sind nicht code-signiert):
+- **Windows:** Die `.exe` ist unsigniert und löst eine SmartScreen-Warnung aus ("Windows hat den PC geschützt"). Auf "Weitere Informationen" → "Trotzdem ausführen" klicken.
+- **macOS:** Das Binary ist unsigniert und löst beim ersten Start einen Gatekeeper-Block ("nicht verifizierter Entwickler") aus. Rechtsklick auf die Datei → "Öffnen", um das einmalig zu umgehen.
+- **Linux:** FAT32/exFAT-formatierte USB-Sticks bewahren das Unix-Ausführbar-Bit nicht, daher startet das Binary per Doppelklick eventuell nicht. Zuerst `chmod +x NetScanX-Start-Linux` ausführen, oder im Dateimanager "Als Programm ausführen" wählen.
 
 ---
 
