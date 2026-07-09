@@ -12,6 +12,12 @@ A cross-platform Network Discovery and Diagnostic Toolkit; discover hosts, enume
 
 Runs on **macOS, Linux, and Windows**. No build step required, install with `pip` (see [Quick Start](#quick-start) for the platform-specific install path).
 
+<p align="center">
+  <img src="docs/dashboard-screenshot.png" alt="NetScanX dashboard showing the Change Report and Asset Inventory cards" width="900"/>
+</p>
+
+<p align="center"><sub>Screenshot uses synthetic demo data, not a real network.</sub></p>
+
 ---
 
 ## Features

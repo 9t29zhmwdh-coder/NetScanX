@@ -14,6 +14,12 @@ Ein plattformübergreifendes Netzwerk-Discovery- und Diagnose-Toolkit; Hosts ent
 
 Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation via `pip` (siehe [Schnellstart](#schnellstart) für den plattformspezifischen Installationsweg).
 
+<p align="center">
+  <img src="docs/dashboard-screenshot.png" alt="NetScanX-Dashboard mit Change-Report- und Asset-Inventory-Karten" width="900"/>
+</p>
+
+<p align="center"><sub>Der Screenshot zeigt synthetische Demo-Daten, kein echtes Netzwerk.</sub></p>
+
 ---
 
 ## Features
