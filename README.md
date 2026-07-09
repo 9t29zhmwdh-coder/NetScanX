@@ -41,6 +41,15 @@ Runs on **macOS, Linux, and Windows**. No build step required, install with `pip
 
 ---
 
+## Requirements
+
+- Python 3.11+ (Windows: from [python.org](https://www.python.org/downloads/windows/) or the Microsoft Store; macOS/Linux: usually preinstalled or via your package manager) — **only needed for the `pip`-installed CLI**, not for the portable USB build below
+- macOS, Linux, or Windows 10/11
+
+> 🌱 New here? → [Step-by-step guide for beginners](GETTING_STARTED.md)
+
+---
+
 ## Quick Start
 
 ### macOS / Linux
