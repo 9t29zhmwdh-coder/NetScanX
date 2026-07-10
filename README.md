@@ -336,9 +336,9 @@ Double-clicking a binary with no arguments launches the dashboard and opens your
 
 Portable mode runs unprivileged by default on unfamiliar machines, just like the regular CLI's non-root fallback (see [Privilege Requirements](#privilege-requirements) below).
 
-**Known limitations** (binaries are not code-signed):
-- **Windows:** the `.exe` is unsigned and will trigger a SmartScreen warning ("Windows protected your PC"). Click "More info" → "Run anyway".
-- **macOS:** the binary is unsigned and will trigger a Gatekeeper "unidentified developer" block on first run. Right-click the file → "Open" to bypass it once.
+**Known limitations:**
+- **Windows:** the `.exe` is signed with a self-signed certificate (not from a trusted CA), so it will still trigger a SmartScreen warning ("Windows protected your PC"). The signature only guarantees the file wasn't tampered with after signing, it does not establish publisher trust. Click "More info" → "Run anyway". A trusted-CA signature is a possible future improvement, see [ROADMAP.md](ROADMAP.md).
+- **macOS:** the binary and the `.dmg` are unsigned and will trigger a Gatekeeper "unidentified developer" block on first run. Right-click the file → "Open" to bypass it once.
 - **Linux:** FAT32/exFAT-formatted USB drives don't preserve the Unix executable bit, so the binary may not run on double-click. Run `chmod +x NetScanX-Start-Linux` first, or use your file manager's "Run as program" option.
 
 ---

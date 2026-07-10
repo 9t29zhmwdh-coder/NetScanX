@@ -321,9 +321,9 @@ Ein Doppelklick auf ein Binary ohne Argumente startet das Dashboard und öffnet 
 
 Der portable Modus läuft standardmässig unprivilegiert auf fremden Rechnern, genau wie der Non-Root-Fallback der regulären CLI (siehe [Berechtigungen](#berechtigungen) unten).
 
-**Bekannte Einschränkungen** (die Binaries sind nicht code-signiert):
-- **Windows:** Die `.exe` ist unsigniert und löst eine SmartScreen-Warnung aus ("Windows hat den PC geschützt"). Auf "Weitere Informationen" → "Trotzdem ausführen" klicken.
-- **macOS:** Das Binary ist unsigniert und löst beim ersten Start einen Gatekeeper-Block ("nicht verifizierter Entwickler") aus. Rechtsklick auf die Datei → "Öffnen", um das einmalig zu umgehen.
+**Bekannte Einschränkungen:**
+- **Windows:** Die `.exe` ist mit einem selbstsignierten Zertifikat signiert (nicht von einer vertrauenswürdigen CA), löst deshalb weiterhin eine SmartScreen-Warnung aus ("Windows hat den PC geschützt"). Die Signatur garantiert nur, dass die Datei nach dem Signieren nicht verändert wurde, sie stellt kein Herausgeber-Vertrauen her. Auf "Weitere Informationen" → "Trotzdem ausführen" klicken. Eine CA-signierte Version ist eine mögliche zukünftige Verbesserung, siehe [ROADMAP.md](ROADMAP.md).
+- **macOS:** Das Binary und die `.dmg` sind unsigniert und lösen beim ersten Start einen Gatekeeper-Block ("nicht verifizierter Entwickler") aus. Rechtsklick auf die Datei → "Öffnen", um das einmalig zu umgehen.
 - **Linux:** FAT32/exFAT-formatierte USB-Sticks bewahren das Unix-Ausführbar-Bit nicht, daher startet das Binary per Doppelklick eventuell nicht. Zuerst `chmod +x NetScanX-Start-Linux` ausführen, oder im Dateimanager "Als Programm ausführen" wählen.
 
 ---

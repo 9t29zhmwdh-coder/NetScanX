@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-07-10
+
+### Added
+
+- Windows release binary is now signed with a self-signed certificate (`signtool`, RFC3161 timestamped). Does not remove the SmartScreen warning (no trusted CA), but the signature does guarantee the file wasn't tampered with after release
+
 ## [0.3.2] - 2026-07-10
 
 ### Added
