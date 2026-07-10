@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-10
+
+### Added
+
+- Release workflow now also builds `NetScanX-Start-macOS.dmg`, a disk image wrapping the portable macOS binary for a more familiar download experience. Not code-signed, same Gatekeeper warning as the raw binary.
+
 ## [0.3.0] - 2026-07-09
 
 ### Added

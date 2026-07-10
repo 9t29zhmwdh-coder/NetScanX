@@ -29,11 +29,25 @@ jobs:
         run: pip install -e ".[build]"
       - name: Build portable launcher
         run: pyinstaller ${{ matrix.spec }} --noconfirm --distpath dist --workpath build/_work
+      - name: Create DMG (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dmg-root
+          cp "dist/${{ matrix.artifact }}" dmg-root/
+          chmod +x "dmg-root/${{ matrix.artifact }}"
+          hdiutil create -volname "NetScanX" -srcfolder dmg-root -ov -format UDZO "dist/NetScanX-Start-macOS.dmg"
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: dist/${{ matrix.artifact }}
+          if-no-files-found: error
+      - name: Upload DMG artifact (macOS only)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetScanX-Start-macOS.dmg
+          path: dist/NetScanX-Start-macOS.dmg
           if-no-files-found: error
 
   release:
