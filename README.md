@@ -330,6 +330,8 @@ USB-Stick-Root/
 └── README.txt
 ```
 
+On macOS, the release also includes `NetScanX-Start-macOS.dmg`, a disk image wrapping the same binary for a more familiar download/mount experience. It is not a "real" installer (there is nothing to install; NetScanX stays portable) and carries the same Gatekeeper warning as the raw binary.
+
 Double-clicking a binary with no arguments launches the dashboard and opens your browser, mirroring `netscanx dashboard`. Running it from a terminal with arguments exposes the full CLI (`NetScanX-Start-Windows.exe discover --arp`, etc.). A `NetScanX-Data/` folder appears next to the binary on first run, containing the SQLite database. This is how scan history and baselines travel with the stick across different machines. Override the location with `--db-path` or `NETSCANX_DB_PATH` if needed.
 
 Portable mode runs unprivileged by default on unfamiliar machines, just like the regular CLI's non-root fallback (see [Privilege Requirements](#privilege-requirements) below).
