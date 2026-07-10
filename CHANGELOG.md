@@ -5,11 +5,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [0.3.1] - 2026-07-10
+## [0.3.2] - 2026-07-10
 
 ### Added
 
 - Release workflow now also builds `NetScanX-Start-macOS.dmg`, a disk image wrapping the portable macOS binary for a more familiar download experience. Not code-signed, same Gatekeeper warning as the raw binary.
+
+### Fixed
+
+- Release workflow lacked `contents: write` permission, so the automated GitHub Release creation on tag push always failed with HTTP 403 (v0.3.1 tag was pushed but its release creation failed for this reason; skipped straight to 0.3.2 rather than deleting/retagging v0.3.1)
 
 ## [0.3.0] - 2026-07-09
 
