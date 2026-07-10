@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-07-10
+
+### Fixed
+
+- Removed em-dash from README.md/README.de.md, replaced with a colon
+
 ## [0.3.3] - 2026-07-10
 
 ### Added
