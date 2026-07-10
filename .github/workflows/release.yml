@@ -32,6 +32,19 @@ jobs:
         run: pip install -e ".[build]"
       - name: Build portable launcher
         run: pyinstaller ${{ matrix.spec }} --noconfirm --distpath dist --workpath build/_work
+      - name: Sign Windows executable (self-signed, no CA)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        env:
+          CODESIGN_PFX_BASE64: ${{ secrets.CODESIGN_PFX_BASE64 }}
+          CODESIGN_PFX_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
+        run: |
+          $pfxPath = "$env:RUNNER_TEMP\codesign.pfx"
+          [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:CODESIGN_PFX_BASE64))
+          $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin" -Filter "signtool.exe" -Recurse |
+            Where-Object { $_.FullName -like "*x64*" } | Select-Object -First 1
+          & $signtool.FullName sign /f $pfxPath /p $env:CODESIGN_PFX_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 "dist/${{ matrix.artifact }}"
+          Remove-Item $pfxPath
       - name: Create DMG (macOS only)
         if: matrix.os == 'macos-latest'
         run: |
