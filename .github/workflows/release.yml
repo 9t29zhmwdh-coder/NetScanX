@@ -25,7 +25,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Install build dependencies
@@ -53,14 +53,14 @@ jobs:
           chmod +x "dmg-root/${{ matrix.artifact }}"
           hdiutil create -volname "NetScanX" -srcfolder dmg-root -ov -format UDZO "dist/NetScanX-Start-macOS.dmg"
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: dist/${{ matrix.artifact }}
           if-no-files-found: error
       - name: Upload DMG artifact (macOS only)
         if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: NetScanX-Start-macOS.dmg
           path: dist/NetScanX-Start-macOS.dmg
@@ -72,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download all build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Flatten artifact layout
