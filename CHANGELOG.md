@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.11] - 2026-07-12
+
+### Removed
+
+- Stale scaffold-tool bookkeeping files SKELETON.md and TEMPLATE_NOTES.md (internal generator artifacts, not real project docs).
+
 ## [0.3.10] - 2026-07-12
 
 ### Added
