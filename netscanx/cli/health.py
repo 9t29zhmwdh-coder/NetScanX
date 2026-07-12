@@ -1,4 +1,4 @@
-"""netscanx health — local machine health, or lightweight network-observable
+"""netscanx health: local machine health, or lightweight network-observable
 health signals for a given host. See netscanx/health/ for the check
 implementations and their weight documentation."""
 from __future__ import annotations

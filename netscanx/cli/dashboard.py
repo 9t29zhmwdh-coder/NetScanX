@@ -1,4 +1,4 @@
-"""netscanx dashboard — optional web dashboard."""
+"""netscanx dashboard: optional web dashboard."""
 from __future__ import annotations
 
 import asyncio

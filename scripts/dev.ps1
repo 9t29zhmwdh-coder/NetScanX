@@ -1,4 +1,4 @@
-# Local development — Windows PowerShell
+# Local development, Windows PowerShell
 if (-not (Test-Path ".venv")) {
     python -m venv .venv
     .\.venv\Scripts\pip install --upgrade pip

@@ -82,7 +82,7 @@
     <div class="card">
       <h2>Discovered Hosts (<span x-text="hosts.length"></span>)</h2>
       <template x-if="hosts.length === 0">
-        <p style="color:var(--muted);font-size:.85rem;">No hosts yet — click Rescan</p>
+        <p style="color:var(--muted);font-size:.85rem;">No hosts yet, click Rescan</p>
       </template>
       <template x-if="hosts.length > 0">
         <div style="overflow-x:auto;">
@@ -92,9 +92,9 @@
               <template x-for="h in hosts" :key="h.ip">
                 <tr>
                   <td class="ip" x-text="h.ip"></td>
-                  <td class="mono" x-text="h.hostname || '—'"></td>
-                  <td class="mac" x-text="h.mac || '—'"></td>
-                  <td style="font-size:.82rem;" x-text="h.vendor || '—'"></td>
+                  <td class="mono" x-text="h.hostname || 'N/A'"></td>
+                  <td class="mac" x-text="h.mac || 'N/A'"></td>
+                  <td style="font-size:.82rem;" x-text="h.vendor || 'N/A'"></td>
                   <td>
                     <template x-for="v in (h.discovered_via || [])" :key="v">
                       <span class="tag" x-text="v"></span>
@@ -116,7 +116,7 @@
       </template>
       <template x-for="check in (diagnostics.checks || [])" :key="check.name">
         <div class="diag-row">
-          <div class="diag-icon" x-text="check.status === 'ok' ? '✓' : check.status === 'warning' ? '!' : check.status === 'error' ? '✗' : '–'"></div>
+          <div class="diag-icon" x-text="check.status === 'ok' ? '✓' : check.status === 'warning' ? '!' : check.status === 'error' ? '✗' : '-'"></div>
           <div>
             <div class="diag-name" x-text="check.name"></div>
             <div class="diag-msg" x-text="check.message"></div>
@@ -144,8 +144,8 @@
               <tr>
                 <td x-text="s.name"></td>
                 <td class="mono" x-text="s.type"></td>
-                <td class="ip" x-text="s.ip || s.host || '—'"></td>
-                <td x-text="s.port || '—'"></td>
+                <td class="ip" x-text="s.ip || s.host || 'N/A'"></td>
+                <td x-text="s.port || 'N/A'"></td>
                 <td><span class="tag" x-text="s.source"></span></td>
               </tr>
             </template>
@@ -177,9 +177,9 @@
                         :class="['new_device','service_added'].includes(c.change_type) ? 'badge-ok' : ['device_gone','mac_changed'].includes(c.change_type) ? 'badge-err' : ['port_closed','vendor_changed','service_removed'].includes(c.change_type) ? 'badge-skip' : 'badge-warn'"
                         x-text="c.change_type"></span>
                 </td>
-                <td class="mono" x-text="c.field || '—'"></td>
-                <td class="mono" x-text="(c.old_value || c.new_value) ? (c.old_value || '—') + ' → ' + (c.new_value || '—') : '—'"></td>
-                <td class="mono" x-text="c.detected_at || '—'"></td>
+                <td class="mono" x-text="c.field || 'N/A'"></td>
+                <td class="mono" x-text="(c.old_value || c.new_value) ? (c.old_value || 'N/A') + ' → ' + (c.new_value || 'N/A') : 'N/A'"></td>
+                <td class="mono" x-text="c.detected_at || 'N/A'"></td>
               </tr>
             </template>
           </tbody>
@@ -201,12 +201,12 @@
           <tbody>
             <template x-for="d in assets" :key="d.id">
               <tr>
-                <td class="ip" x-text="d.ip || '—'"></td>
-                <td class="mono" x-text="d.hostname || '—'"></td>
-                <td class="mac" x-text="d.mac || '—'"></td>
-                <td style="font-size:.82rem;" x-text="d.vendor || '—'"></td>
+                <td class="ip" x-text="d.ip || 'N/A'"></td>
+                <td class="mono" x-text="d.hostname || 'N/A'"></td>
+                <td class="mac" x-text="d.mac || 'N/A'"></td>
+                <td style="font-size:.82rem;" x-text="d.vendor || 'N/A'"></td>
                 <td><span class="tag" x-text="d.device_type || 'unknown'"></span></td>
-                <td class="mono" x-text="(d.last_seen || '—').slice(0, 19)"></td>
+                <td class="mono" x-text="(d.last_seen || 'N/A').slice(0, 19)"></td>
               </tr>
             </template>
           </tbody>

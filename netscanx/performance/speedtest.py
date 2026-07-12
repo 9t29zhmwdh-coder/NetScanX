@@ -29,7 +29,7 @@ class SpeedtestServer:
             local_addr=(self.host, self.udp_port),
         )
 
-        print(f"NetScanX speedtest server — TCP :{self.tcp_port}  UDP :{self.udp_port}")
+        print(f"NetScanX speedtest server: TCP :{self.tcp_port}  UDP :{self.udp_port}")
         print("Press Ctrl+C to stop.")
 
         try:

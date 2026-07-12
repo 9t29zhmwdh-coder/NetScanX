@@ -53,7 +53,7 @@ def print_discover(result: DiscoverResult, verbose: bool = False) -> None:
         return
 
     table = Table(
-        title=f"Discovered Hosts — {result.target} ({len(result.hosts)} found, {result.scan_duration_s:.1f}s)",
+        title=f"Discovered Hosts: {result.target} ({len(result.hosts)} found, {result.scan_duration_s:.1f}s)",
         box=box.ROUNDED,
         show_lines=False,
     )
@@ -70,10 +70,10 @@ def print_discover(result: DiscoverResult, verbose: bool = False) -> None:
             ports_str += f" +{len(host.open_ports) - 8}"
         table.add_row(
             host.ip,
-            host.mac or "—",
-            host.vendor or "—",
-            host.hostname or "—",
-            ports_str or "—",
+            host.mac or "N/A",
+            host.vendor or "N/A",
+            host.hostname or "N/A",
+            ports_str or "N/A",
             ", ".join(host.discovered_via),
         )
 
@@ -82,7 +82,7 @@ def print_discover(result: DiscoverResult, verbose: bool = False) -> None:
     if verbose:
         for host in result.hosts:
             if host.open_ports:
-                console.print(f"\n[cyan]{host.ip}[/cyan] — open ports:")
+                console.print(f"\n[cyan]{host.ip}[/cyan]: open ports:")
                 for p in host.open_ports:
                     svc = p.service or "unknown"
                     banner = f"  [dim]{p.banner[:60]}[/dim]" if p.banner else ""
@@ -95,7 +95,7 @@ def print_services(result: ServicesResult) -> None:
         return
 
     table = Table(
-        title=f"Discovered Services — {result.target} ({len(result.services)} found, {result.scan_duration_s:.1f}s)",
+        title=f"Discovered Services: {result.target} ({len(result.services)} found, {result.scan_duration_s:.1f}s)",
         box=box.ROUNDED,
     )
     table.add_column("Name", style="cyan", max_width=35)
@@ -111,8 +111,8 @@ def print_services(result: ServicesResult) -> None:
         table.add_row(
             svc.name[:35],
             svc.type[:25],
-            host_display or "—",
-            str(svc.port) if svc.port else "—",
+            host_display or "N/A",
+            str(svc.port) if svc.port else "N/A",
             svc.source,
         )
 
@@ -121,7 +121,7 @@ def print_services(result: ServicesResult) -> None:
 
 def print_speedtest(result: SpeedtestResult) -> None:
     console.print(Panel.fit(
-        f"[bold]Speedtest — {result.host}:{result.port}[/bold]",
+        f"[bold]Speedtest: {result.host}:{result.port}[/bold]",
         border_style="blue",
     ))
 
@@ -155,10 +155,10 @@ def print_speedtest(result: SpeedtestResult) -> None:
 
 def print_diagnostic(report: DiagnosticReport) -> None:
     _status_color = {"ok": "green", "warning": "yellow", "error": "red", "skipped": "dim"}
-    _status_icon = {"ok": "✓", "warning": "!", "error": "✗", "skipped": "–"}
+    _status_icon = {"ok": "✓", "warning": "!", "error": "✗", "skipped": "-"}
 
     console.print(Panel.fit(
-        f"[bold]Diagnostic Report — {report.target}[/bold]",
+        f"[bold]Diagnostic Report: {report.target}[/bold]",
         border_style="blue",
     ))
 
@@ -229,12 +229,12 @@ def print_changes(changes: list[dict]) -> None:
         device = c.get("device_hostname") or c.get("device_ip") or f"device #{c.get('device_id')}"
         old_new = ""
         if c.get("old_value") or c.get("new_value"):
-            old_new = f"{c.get('old_value') or '—'} → {c.get('new_value') or '—'}"
+            old_new = f"{c.get('old_value') or 'N/A'} → {c.get('new_value') or 'N/A'}"
         table.add_row(
             device,
             f"[{color}]{c['change_type']}[/{color}]",
-            c.get("field") or "—",
-            old_new or "—",
+            c.get("field") or "N/A",
+            old_new or "N/A",
             str(c.get("detected_at") or ""),
         )
 
@@ -243,11 +243,11 @@ def print_changes(changes: list[dict]) -> None:
 
 def print_health(report: HealthReport) -> None:
     _status_color = {"ok": "green", "warning": "yellow", "error": "red", "skipped": "dim"}
-    _status_icon = {"ok": "✓", "warning": "!", "error": "✗", "skipped": "–"}
+    _status_icon = {"ok": "✓", "warning": "!", "error": "✗", "skipped": "-"}
 
     score_color = "green" if report.score >= 80 else "yellow" if report.score >= 50 else "red"
     console.print(Panel.fit(
-        f"[bold]Health Report — {report.target}[/bold]\n"
+        f"[bold]Health Report: {report.target}[/bold]\n"
         f"Health Score: [{score_color}]{report.score}/100[/{score_color}]",
         border_style="blue",
     ))

@@ -1,4 +1,4 @@
-"""netscanx assets — list the persisted device inventory."""
+"""netscanx assets: list the persisted device inventory."""
 from __future__ import annotations
 
 import asyncio
@@ -61,12 +61,12 @@ async def _run(fmt: str, db_path: str | None) -> None:
         table.add_column("Last Seen", style="dim")
         for row in rows:
             table.add_row(
-                row["ip"] or "—",
-                row["hostname"] or "—",
-                row["mac"] or "—",
-                row["vendor"] or "—",
-                row["os_guess"] or "—",
-                row["device_type"] or "—",
-                (row["last_seen"] or "—")[:19],
+                row["ip"] or "N/A",
+                row["hostname"] or "N/A",
+                row["mac"] or "N/A",
+                row["vendor"] or "N/A",
+                row["os_guess"] or "N/A",
+                row["device_type"] or "N/A",
+                (row["last_seen"] or "N/A")[:19],
             )
         console.print(table)
