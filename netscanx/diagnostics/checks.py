@@ -97,13 +97,13 @@ class DiagnosticsRunner:
             return DiagnosticCheck(
                 name="Default Gateway",
                 status="warning",
-                message=f"Gateway {gw} — {stats.avg_ms:.1f}ms avg, {stats.packet_loss_pct:.0f}% loss",
+                message=f"Gateway {gw}: {stats.avg_ms:.1f}ms avg, {stats.packet_loss_pct:.0f}% loss",
                 details={"gateway": gw, "avg_ms": stats.avg_ms, "loss_pct": stats.packet_loss_pct},
             )
         return DiagnosticCheck(
             name="Default Gateway",
             status="ok",
-            message=f"Gateway {gw} reachable — {stats.avg_ms:.1f}ms avg",
+            message=f"Gateway {gw} reachable: {stats.avg_ms:.1f}ms avg",
             details={"gateway": gw, "avg_ms": stats.avg_ms},
         )
 
@@ -128,7 +128,7 @@ class DiagnosticsRunner:
         return DiagnosticCheck(
             name="Packet Loss",
             status="ok",
-            message=f"No packet loss — {stats.avg_ms:.1f}ms to {target}",
+            message=f"No packet loss: {stats.avg_ms:.1f}ms to {target}",
             details=stats.model_dump(),
         )
 
@@ -168,7 +168,7 @@ class DiagnosticsRunner:
             info["local_ip"] = local_ip
 
             if local_ip.startswith("169.254."):
-                issues.append("APIPA address detected — DHCP may have failed")
+                issues.append("APIPA address detected: DHCP may have failed")
             elif local_ip in ("127.0.0.1", "0.0.0.0"):
                 issues.append("No valid IP address assigned")
 
@@ -196,7 +196,7 @@ class DiagnosticsRunner:
         return DiagnosticCheck(
             name="Subnet Config",
             status="ok",
-            message=f"Local IP {info.get('local_ip', '?')} — gateway {info.get('gateway', '?')}",
+            message=f"Local IP {info.get('local_ip', '?')}, gateway {info.get('gateway', '?')}",
             details=info,
         )
 
@@ -240,7 +240,7 @@ class DiagnosticsRunner:
                 return DiagnosticCheck(
                     name="IPv6 Connectivity",
                     status="ok",
-                    message=f"IPv6 available — {ipv6_addr}",
+                    message=f"IPv6 available: {ipv6_addr}",
                     details={"ipv6_address": ipv6_addr},
                 )
         except Exception:

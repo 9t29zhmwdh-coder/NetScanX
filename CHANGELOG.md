@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-07-12
+
+### Fixed
+
+- Removed an eszett and em-dashes/en-dashes across the repo (docs, LICENSE, .env.example, scripts, CLI docstrings and messages, diagnostics/checks.py, output.py, and the dashboard's index.html). Swiss German orthography.
+
 ## [0.3.7] - 2026-07-11
 
 ### Added

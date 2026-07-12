@@ -1,4 +1,4 @@
-"""netscanx diagnose — auto-diagnose network health."""
+"""netscanx diagnose: auto-diagnose network health."""
 from __future__ import annotations
 
 import asyncio

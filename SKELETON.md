@@ -1,4 +1,4 @@
-# NetScanX — Professional Repo Skeleton
+# NetScanX: Professional Repo Skeleton
 
 **Generated:** 2026-06-16 | **Earliest commit:** 2026-06-13 | **Release:** v0.1.0
 
@@ -8,9 +8,9 @@
 - ARCHITECTURE.md ✅
 - PRIVACY.md ✅
 - ROADMAP.md ✅
-- CONTRIBUTING.md (preserved — already existed)
+- CONTRIBUTING.md (preserved, already existed)
 - CODE_OF_CONDUCT.md ✅
-- SECURITY.md (preserved — already existed)
+- SECURITY.md (preserved, already existed)
 - CHANGELOG.md ✅
 - .github/ISSUE_TEMPLATE/bug_report.md ✅
 - .github/ISSUE_TEMPLATE/feature_request.md ✅
@@ -58,4 +58,4 @@ NetScanX/
 ```
 
 ---
-*NetScanX — RayStudio · Rafael Yilmaz · MIT License · 2026*
+*NetScanX: RayStudio · Rafael Yilmaz · MIT License · 2026*

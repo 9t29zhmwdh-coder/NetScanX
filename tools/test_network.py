@@ -1,5 +1,5 @@
 """
-NetScanX network probe simulator — cross-platform (Linux, Windows, macOS).
+NetScanX network probe simulator: cross-platform (Linux, Windows, macOS).
 
 Simulates common network services by opening TCP listeners on configurable ports.
 Useful for testing netscanx discover and netscanx services without a real network.
@@ -65,7 +65,7 @@ async def start_servers(host: str, ports: list[int]) -> list[asyncio.Server]:
 
 
 async def main(host: str, ports: list[int], duration: float) -> None:
-    print(f"NetScanX probe simulator — {host}")
+    print(f"NetScanX probe simulator: {host}")
     print(f"Ports: {', '.join(str(p) for p in ports)}")
     print(f"Duration: {duration}s (Ctrl+C to stop early)\n")
 

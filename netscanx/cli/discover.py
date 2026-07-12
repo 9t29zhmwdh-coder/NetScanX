@@ -1,4 +1,4 @@
-"""netscanx discover — host discovery via ARP, ICMP, TCP."""
+"""netscanx discover: host discovery via ARP, ICMP, TCP."""
 from __future__ import annotations
 
 import asyncio
@@ -75,9 +75,9 @@ def discover(
 
     \b
     TARGET can be:
-      192.168.1.0/24    — CIDR subnet
-      192.168.1.1       — single host
-      (omit)            — auto-detect local /24
+      192.168.1.0/24    : CIDR subnet
+      192.168.1.1       : single host
+      (omit)            : auto-detect local /24
 
     \b
     Examples:

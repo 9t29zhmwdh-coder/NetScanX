@@ -1,4 +1,4 @@
-"""netscanx services — mDNS, SSDP, NetBIOS, SNMP discovery."""
+"""netscanx services: mDNS, SSDP, NetBIOS, SNMP discovery."""
 from __future__ import annotations
 
 import asyncio
@@ -131,7 +131,7 @@ async def run_services_scan(
         if do_netbios or do_snmp:
             ips = await _collect_ips(target)
             if not ips:
-                console.print("[dim]No hosts in target range — skipping NetBIOS/SNMP[/dim]")
+                console.print("[dim]No hosts in target range, skipping NetBIOS/SNMP[/dim]")
             else:
                 if do_netbios:
                     nb = NetBIOSScanner()

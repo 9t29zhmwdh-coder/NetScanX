@@ -1,4 +1,4 @@
-"""netscanx changes — show what changed since the last scan or the pinned baseline."""
+"""netscanx changes: show what changed since the last scan or the pinned baseline."""
 from __future__ import annotations
 
 import asyncio

@@ -1,4 +1,4 @@
-"""netscanx speedtest — TCP/UDP throughput, latency, jitter."""
+"""netscanx speedtest: TCP/UDP throughput, latency, jitter."""
 from __future__ import annotations
 
 import asyncio

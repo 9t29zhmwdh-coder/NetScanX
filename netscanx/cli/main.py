@@ -7,7 +7,7 @@ console = Console()
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option("0.3.0", prog_name="netscanx")
 def cli() -> None:
-    """NetScanX — cross-platform network discovery and diagnostic toolkit.
+    """NetScanX: cross-platform network discovery and diagnostic toolkit.
 
     \b
     Commands:

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local development — Linux / macOS
+# Local development, Linux / macOS
 set -e
 
 if [ ! -d ".venv" ]; then
