@@ -14,6 +14,8 @@ Ein plattformübergreifendes Netzwerk-Discovery- und Diagnose-Toolkit; Hosts ent
 
 Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation via `pip` (siehe [Schnellstart](#schnellstart) für den plattformspezifischen Installationsweg).
 
+> **So läuft es:** Dies ist ein Kommandozeilen-Tool, keine Desktop-App und kein Server. Jeder Scan-Befehl läuft einmal durch und beendet sich, Ergebnisse werden in einer lokalen SQLite-Datenbank für Baseline-/Drift-Vergleiche gespeichert; es gibt keinen Installer und keinen Hintergrundprozess. Das optionale Web-Dashboard (`netscanx dashboard`) ist ein rein lokaler FastAPI-Server, den du selbst startest und stoppst, kein Dauerbetrieb.
+
 <p align="center">
   <img src="docs/dashboard-screenshot.png" alt="NetScanX-Dashboard mit Change-Report- und Asset-Inventory-Karten" width="900"/>
 </p>
@@ -23,6 +25,10 @@ Läuft auf **macOS, Linux und Windows**. Kein Build-Schritt nötig, Installation
 ---
 
 > 🌱 Neu hier? → [Schritt-für-Schritt-Anleitung für Einsteiger](GETTING_STARTED.de.md)
+
+---
+
+**In der Praxis:** du führst einmal einen Scan gegen dein Netzwerk aus, NetScanX entdeckt Hosts und Dienste und speichert das Ergebnis lokal; jeder weitere Scan wird mit dem letzten (oder einer festgelegten Baseline) verglichen, sodass du sofort siehst, was sich geändert hat, neue oder verschwundene Geräte, Port-Änderungen, Hostname-/IP-/MAC-Drift, ohne jedes Mal einen kompletten Bericht neu zu lesen.
 
 ---
 
@@ -354,6 +360,13 @@ python tools/test_network.py
 netscanx discover 127.0.0.1 --no-arp --ping --ports 22,80,443,8080
 ```
 
+---
+
+## Deinstallation / Aufräumen
+
+- `pip uninstall netscanx`
+- Lokale Scan-Datenbank löschen: liegt im OS-üblichen Nutzerdatenverzeichnis (z. B. `~/Library/Application Support/netscanx` auf macOS, `~/.local/share/netscanx` auf Linux, `%LOCALAPPDATA%\netscanx` auf Windows), oder setze `NETSCANX_DB_PATH`, um den genauen konfigurierten Pfad zu sehen
+- Portable/USB-Modus: den Launcher und den zugehörigen `NetScanX-Data/`-Ordner löschen; es wird sonst nirgendwo etwas geschrieben
 
 ---
 

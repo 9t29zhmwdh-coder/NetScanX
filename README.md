@@ -12,6 +12,8 @@ A cross-platform Network Discovery and Diagnostic Toolkit; discover hosts, enume
 
 Runs on **macOS, Linux, and Windows**. No build step required, install with `pip` (see [Quick Start](#quick-start) for the platform-specific install path).
 
+> **How it runs:** This is a command-line tool, not a desktop app and not a server. Each scan command runs once and exits, persisting results to a local SQLite database for baseline/drift comparison; there is no installer and no background process. The optional web dashboard (`netscanx dashboard`) is a local-only FastAPI server you start and stop yourself, not something always running.
+
 <p align="center">
   <img src="docs/dashboard-screenshot.png" alt="NetScanX dashboard showing the Change Report and Asset Inventory cards" width="900"/>
 </p>
@@ -21,6 +23,10 @@ Runs on **macOS, Linux, and Windows**. No build step required, install with `pip
 ---
 
 > 🌱 New here? → [Step-by-step guide for beginners](GETTING_STARTED.md)
+
+---
+
+**In practice:** you run a scan against your network once, NetScanX discovers hosts and services and stores the result locally; every subsequent scan is diffed against the last one (or a pinned baseline) so you immediately see what changed, new or gone devices, port changes, hostname/IP/MAC drift, without re-reading a full report each time.
 
 ---
 
@@ -371,6 +377,12 @@ netscanx discover 127.0.0.1 --no-arp --ping --ports 22,80,443,8080
 ```
 
 ---
+
+## Uninstall / Cleanup
+
+- `pip uninstall netscanx`
+- Delete the local scan database: on macOS/Linux/Windows it lives in your OS's standard user-data directory (e.g. `~/Library/Application Support/netscanx` on macOS, `~/.local/share/netscanx` on Linux, `%LOCALAPPDATA%\netscanx` on Windows), or set `NETSCANX_DB_PATH` to see the exact path you configured
+- Portable/USB mode: delete the launcher and its adjacent `NetScanX-Data/` folder; nothing is written anywhere else
 
 ---
 

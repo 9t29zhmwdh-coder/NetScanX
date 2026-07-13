@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.12] - 2026-07-13
+
+### Added
+
+- README.md/README.de.md: "How it runs" callout, "In practice" paragraph, and "Uninstall/Cleanup" section (adapted for a CLI tool with an optional local dashboard and portable/USB mode), which this repo was missing entirely in both languages.
+
 ## [0.3.11] - 2026-07-12
 
 ### Removed
