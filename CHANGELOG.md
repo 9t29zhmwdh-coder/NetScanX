@@ -3,6 +3,13 @@
 All notable changes to NetScanX will be documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.0] - 2026-07-17
+
+First stable release: a real, packaged, installable distribution
+(single-file binaries for Windows/macOS/Linux, attached to every
+GitHub Release) already exists for end users, the prerequisite for a
+1.0 release per this portfolio's own SemVer discipline.
+
 ## [0.3.12] - 2026-07-17
 
 ### Changed
