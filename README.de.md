@@ -4,7 +4,7 @@
   <h1>NetScanX</h1>
 </div>
 
-[🇬🇧 English](README.md)
+[🇬🇧 English Version](README.md)
 
 # NetScanX
 
