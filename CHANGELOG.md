@@ -3,6 +3,18 @@
 All notable changes to NetScanX will be documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+## [1.0.1] - 2026-07-20
+
+### Changed
+
+- OpenSSF Scorecard workflow and badge.
+- `copilot-instructions.md` for consistent AI-assisted contributions.
+- Unified the EN/DE language-switch link format.
+- Fixed a duplicated `[0.3.12]` CHANGELOG entry and a misplaced `[Unreleased]` heading.
+- Split the README's security/CI badges onto their own line, separate from the platform/tech/AI badges (they were rendering as a single merged line).
+
 ## [1.0.0] - 2026-07-17
 
 First stable release: a real, packaged, installable distribution
@@ -12,16 +24,12 @@ GitHub Release) already exists for end users, the prerequisite for a
 
 ## [0.3.12] - 2026-07-17
 
-### Changed
-- CI: added an explicit `permissions: contents: read` block to the workflow(s) that were missing one (CodeQL `actions/missing-workflow-permissions`), narrowing the default GITHUB_TOKEN scope.
-
-## [Unreleased]
-
-## [0.3.12] - 2026-07-13
-
 ### Added
 
 - README.md/README.de.md: "How it runs" callout, "In practice" paragraph, and "Uninstall/Cleanup" section (adapted for a CLI tool with an optional local dashboard and portable/USB mode), which this repo was missing entirely in both languages.
+
+### Changed
+- CI: added an explicit `permissions: contents: read` block to the workflow(s) that were missing one (CodeQL `actions/missing-workflow-permissions`), narrowing the default GITHUB_TOKEN scope.
 
 ## [0.3.11] - 2026-07-12
 
