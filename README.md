@@ -7,6 +7,7 @@
 [🇩🇪 Deutsche Version](README.de.md)
 
 [![CI](https://github.com/9t29zhmwdh-coder/NetScanX/actions/workflows/ci.yml/badge.svg)](https://github.com/9t29zhmwdh-coder/NetScanX/actions) ![Platform](https://img.shields.io/badge/Platform-macOS_%7C_Windows_%7C_Ubuntu-lightgrey) ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white) ![AI | Claude Code](https://img.shields.io/badge/AI-Claude_Code-black?logo=anthropic&logoColor=white) ![AI | Copilot](https://img.shields.io/badge/AI-Copilot-black?logo=github&logoColor=white)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/9t29zhmwdh-coder/NetScanX/badge)](https://securityscorecards.dev/viewer/?uri=github.com/9t29zhmwdh-coder/NetScanX)
 
 A cross-platform Network Discovery and Diagnostic Toolkit; discover hosts, enumerate services, measure throughput, and auto-diagnose network issues from a single CLI.
 
